@@ -32,7 +32,7 @@ public class NotifyInfoController {
      */
     @GetMapping("/page")
     public R page(Page<NotifyInfo> page, NotifyInfo notifyInfo) {
-        return R.ok();
+        return R.ok(notifyInfoService.selectNotifyPage(page, notifyInfo));
     }
 
     /**
