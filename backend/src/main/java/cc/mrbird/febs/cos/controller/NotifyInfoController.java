@@ -26,7 +26,7 @@ public class NotifyInfoController {
     /**
      * 分页获取通知信息
      *
-     * @param page         分页对象
+     * @param page       分页对象
      * @param notifyInfo 通知信息
      * @return 结果
      */

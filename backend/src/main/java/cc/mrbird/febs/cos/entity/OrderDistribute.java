@@ -42,5 +42,11 @@ public class OrderDistribute implements Serializable {
      */
     private String createDate;
 
+    public OrderDistribute(String orderCode, String staffCode, String createDate) {
+        this.orderCode = orderCode;
+        this.staffCode = staffCode;
+        this.createDate = createDate;
+    }
 
+    public OrderDistribute() {}
 }

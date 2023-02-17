@@ -8,4 +8,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IOrderDistributeService extends IService<OrderDistribute> {
 
+    /**
+     * 设置订单员工
+     *
+     * @param staffListStr 员工编号
+     * @param orderCode    订单编号
+     * @return 结果
+     */
+    boolean setOrderStaff(String staffListStr, String orderCode) throws Exception;
 }

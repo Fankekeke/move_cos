@@ -26,13 +26,25 @@ public class OrderDistributeController {
     /**
      * 分页获取订单分配信息
      *
-     * @param page         分页对象
+     * @param page            分页对象
      * @param orderDistribute 订单分配信息
      * @return 结果
      */
     @GetMapping("/page")
     public R page(Page<OrderDistribute> page, OrderDistribute orderDistribute) {
         return R.ok();
+    }
+
+    /**
+     * 设置订单员工
+     *
+     * @param staffListStr 员工编号
+     * @param orderCode    订单编号
+     * @return 结果
+     */
+    @GetMapping("/setStaff")
+    public R setOrderStaff(@RequestParam("staffListStr") String staffListStr, @RequestParam("orderCode") String orderCode) throws Exception {
+        return R.ok(orderDistributeService.setOrderStaff(staffListStr, orderCode));
     }
 
     /**

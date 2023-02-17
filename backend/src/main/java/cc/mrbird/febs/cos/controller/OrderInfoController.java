@@ -5,6 +5,7 @@ import cc.mrbird.febs.common.utils.R;
 import cc.mrbird.febs.cos.entity.OrderInfo;
 import cc.mrbird.febs.cos.service.IOrderInfoService;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +27,25 @@ public class OrderInfoController {
     /**
      * 分页获取订单信息
      *
-     * @param page         分页对象
+     * @param page      分页对象
      * @param orderInfo 订单信息
      * @return 结果
      */
     @GetMapping("/page")
     public R page(Page<OrderInfo> page, OrderInfo orderInfo) {
         return R.ok(orderInfoService.selectOrderPage(page, orderInfo));
+    }
+
+    /**
+     * 设置订单状态
+     *
+     * @param orderCode 订单编号
+     * @param status    状态
+     * @return 结果
+     */
+    @GetMapping("/audit")
+    public R audit(@RequestParam("orderCode") String orderCode, @RequestParam("status") Integer status) {
+        return R.ok(orderInfoService.update(Wrappers.<OrderInfo>lambdaUpdate().set(OrderInfo::getStatus, status).eq(OrderInfo::getCode, orderCode)));
     }
 
     /**
@@ -89,5 +102,5 @@ public class OrderInfoController {
     public R deleteByIds(@PathVariable("ids") List<Integer> ids) {
         return R.ok(orderInfoService.removeByIds(ids));
     }
-    
+
 }
