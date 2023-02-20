@@ -38,5 +38,5 @@ public interface IOrderInfoService extends IService<OrderInfo> {
      *
      * @return 结果
      */
-    LinkedHashMap<String, Object> homeData();
+    LinkedHashMap<String, Object> homeData(String userCode);
 }

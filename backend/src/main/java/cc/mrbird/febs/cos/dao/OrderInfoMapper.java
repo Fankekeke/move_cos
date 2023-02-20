@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * @author FanK
@@ -21,4 +22,18 @@ public interface OrderInfoMapper extends BaseMapper<OrderInfo> {
      * @return 结果
      */
     IPage<LinkedHashMap<String, Object>> selectOrderPage(Page<OrderInfo> page, @Param("orderInfo") OrderInfo orderInfo);
+
+    /**
+     * 近十天内订单数量统计
+     *
+     * @return 结果
+     */
+    List<LinkedHashMap<String, Object>> selectOrderNumDays();
+
+    /**
+     * 近十天内订单收益统计
+     *
+     * @return 结果
+     */
+    List<LinkedHashMap<String, Object>> selectOrderAmountDays();
 }

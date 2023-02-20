@@ -67,8 +67,8 @@ public class OrderInfoController {
      * @return 结果
      */
     @GetMapping("/homeData")
-    public R homeData() {
-        return R.ok();
+    public R homeData(@RequestParam("userCode") String userCode) {
+        return R.ok(orderInfoService.homeData(userCode));
     }
 
     /**

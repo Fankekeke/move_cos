@@ -1,10 +1,8 @@
 package cc.mrbird.febs.cos.service.impl;
 
 import cc.mrbird.febs.cos.dao.UserInfoMapper;
-import cc.mrbird.febs.cos.entity.OrderInfo;
+import cc.mrbird.febs.cos.entity.*;
 import cc.mrbird.febs.cos.dao.OrderInfoMapper;
-import cc.mrbird.febs.cos.entity.PaymentRecord;
-import cc.mrbird.febs.cos.entity.StaffInfo;
 import cc.mrbird.febs.cos.service.*;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
@@ -38,6 +36,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private final UserInfoMapper userInfoMapper;
 
     private final IPaymentRecordService paymentRecordService;
+
+    private final INotifyInfoService notifyInfoService;
 
     /**
      * 分页获取订单信息
@@ -84,7 +84,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
      * @return 结果
      */
     @Override
-    public LinkedHashMap<String, Object> homeData() {
+    public LinkedHashMap<String, Object> homeData(String userCode) {
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
         // 查询员工信息
         List<StaffInfo> staffInfoList = staffInfoService.list(Wrappers.<StaffInfo>lambdaQuery().eq(StaffInfo::getStatus, 1));
@@ -99,8 +99,21 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         List<PaymentRecord> paymentRecordList = paymentRecordService.list();
         BigDecimal amount = CollectionUtil.isEmpty(paymentRecordList) ? BigDecimal.ZERO : paymentRecordList.stream().map(PaymentRecord::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         // 近十天内订单数量统计
-
+        List<LinkedHashMap<String, Object>> orderNumDays = baseMapper.selectOrderNumDays();
         // 近十天内订单收益统计
-        return null;
+        List<LinkedHashMap<String, Object>> orderAmountDays = baseMapper.selectOrderAmountDays();
+        // 公告
+        List<BulletinInfo> bulletinInfoList = bulletinInfoService.list(Wrappers.<BulletinInfo>lambdaQuery().eq(BulletinInfo::getRackUp, 1));
+        // 通知
+        List<NotifyInfo> notifyInfoList = notifyInfoService.list(Wrappers.<NotifyInfo>lambdaQuery().eq(NotifyInfo::getUserCode, userCode));
+        result.put("driverNum", driverNum);
+        result.put("staffMoveNum", staffMoveNum);
+        result.put("orderNum", orderNum);
+        result.put("amount", amount);
+        result.put("orderNumDays", orderNumDays);
+        result.put("orderAmountDays", orderAmountDays);
+        result.put("bulletinInfoList", bulletinInfoList);
+        result.put("notifyInfoList", notifyInfoList);
+        return result;
     }
 }
