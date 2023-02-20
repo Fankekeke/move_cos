@@ -103,6 +103,11 @@ public class OrderInfo implements Serializable {
      */
     private BigDecimal amount;
 
+    /**
+     * 司机编号
+     */
+    private String driverCode;
+
     @TableField(exist = false)
     private String userName;
 }

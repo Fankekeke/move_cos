@@ -49,6 +49,29 @@ public class OrderInfoController {
     }
 
     /**
+     * 管理员对订单分配
+     *
+     * @param orderCode    订单编号
+     * @param driverCode   司机编号
+     * @param staffCodeStr 帮运
+     * @return 结果
+     */
+    @GetMapping("/checkOrder")
+    public R checkOrder(@RequestParam("orderCode") String orderCode, @RequestParam("driverCode") String driverCode, @RequestParam("staffCodeStr") String staffCodeStr) throws Exception {
+        return R.ok(orderInfoService.checkOrder(orderCode, driverCode, staffCodeStr));
+    }
+
+    /**
+     * 主页信息
+     *
+     * @return 结果
+     */
+    @GetMapping("/homeData")
+    public R homeData() {
+        return R.ok();
+    }
+
+    /**
      * 获取ID获取订单详情
      *
      * @param id 主键
