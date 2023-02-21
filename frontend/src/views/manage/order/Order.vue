@@ -23,7 +23,7 @@
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="药店名称"
+                label="订单状态"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
                 <a-input v-model="queryParams.pharmacyName"/>
@@ -155,13 +155,25 @@ export default {
         dataIndex: 'code'
       }, {
         title: '客户名称',
-        dataIndex: 'name',
+        dataIndex: 'userName',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
           } else {
             return <a-tag>平台内下单</a-tag>
           }
+        }
+      }, {
+        title: '头像',
+        dataIndex: 'userImages',
+        customRender: (text, record, index) => {
+          if (!record.images) return <a-avatar shape="square" icon="user" />
+          return <a-popover>
+            <template slot="content">
+              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
+            </template>
+            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
+          </a-popover>
         }
       }, {
         title: '联系方式',
@@ -175,7 +187,7 @@ export default {
         }
       }, {
         title: '订单总额',
-        dataIndex: 'totalCost',
+        dataIndex: 'amount',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text + '元'
@@ -184,8 +196,8 @@ export default {
           }
         }
       }, {
-        title: '收获地址',
-        dataIndex: 'userAddress',
+        title: '初始地址',
+        dataIndex: 'startAddress',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -194,8 +206,8 @@ export default {
           }
         }
       }, {
-        title: '所属药店',
-        dataIndex: 'pharmacyName',
+        title: '运货地址',
+        dataIndex: 'endAddress',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -211,11 +223,11 @@ export default {
             case 0:
               return <a-tag>待付款</a-tag>
             case 1:
-              return <a-tag>已下单</a-tag>
+              return <a-tag>正在分配</a-tag>
             case 2:
-              return <a-tag>配送中</a-tag>
+              return <a-tag>运输中</a-tag>
             case 3:
-              return <a-tag>已收货</a-tag>
+              return <a-tag>运输完成</a-tag>
             default:
               return '- -'
           }

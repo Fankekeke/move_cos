@@ -9,14 +9,14 @@
       <div style="padding-left: 24px;padding-right: 24px;margin-bottom: 50px;margin-top: 50px">
         <a-steps :current="current" progress-dot size="small">
           <a-step title="待付款" />
-          <a-step title="已下单" />
-          <a-step title="配送中" />
-          <a-step title="已收货" />
+          <a-step title="正在分配" />
+          <a-step title="运输中" />
+          <a-step title="运输完成" />
         </a-steps>
       </div>
       <a-row style="padding-left: 24px;padding-right: 24px;">
         <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">基础信息</span></a-col>
-        <a-col :span="8"><b>工单编号：</b>
+        <a-col :span="8"><b>订单编号：</b>
           {{ orderData.code }}
         </a-col>
         <a-col :span="8"><b>客户名称：</b>
@@ -30,12 +30,12 @@
       <a-row style="padding-left: 24px;padding-right: 24px;">
         <a-col :span="8"><b>当前状态：</b>
           <span v-if="orderData.orderStatus == 0">待付款</span>
-          <span v-if="orderData.orderStatus == 1">已下单</span>
-          <span v-if="orderData.orderStatus == 2">配送中</span>
-          <span v-if="orderData.orderStatus == 3">已收货</span>
+          <span v-if="orderData.orderStatus == 1">正在分配</span>
+          <span v-if="orderData.orderStatus == 2">运输中</span>
+          <span v-if="orderData.orderStatus == 3">运输完成</span>
         </a-col>
         <a-col :span="8"><b>订单金额：</b>
-          {{ orderData.totalCost }} 元
+          {{ orderData.amount }} 元
         </a-col>
         <a-col :span="8"><b>下单时间：</b>
           {{ orderData.createDate }}
@@ -43,7 +43,7 @@
       </a-row>
       <br/>
       <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">药店信息</span></a-col>
+        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">运输配置</span></a-col>
         <a-col :span="8"><b>药店名称：</b>
             {{ orderData.pharmacyName }}
           </a-col>
@@ -56,7 +56,7 @@
       </a-row>
       <br/>
       <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">购买药品信息</span></a-col>
+        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">订单评价</span></a-col>
          <a-col :span="24">
           <a-table :columns="columns" :data-source="durgList">
           </a-table>
@@ -64,7 +64,7 @@
       </a-row>
       <br/>
       <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">当前物流</span></a-col>
+        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">用户信息</span></a-col>
          <a-col :span="24">
           <a-table :columns="logisticsColumns" :data-source="logisticsList">
           </a-table>

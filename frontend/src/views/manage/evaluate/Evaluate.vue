@@ -21,14 +21,6 @@
                 <a-input v-model="queryParams.userName"/>
               </a-form-item>
             </a-col>
-            <a-col :md="6" :sm="24">
-              <a-form-item
-                label="药店名称"
-                :labelCol="{span: 5}"
-                :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.pharmacyName"/>
-              </a-form-item>
-            </a-col>
           </div>
           <span style="float: right; margin-top: 3px;">
             <a-button type="primary" @click="search">查询</a-button>
@@ -111,8 +103,8 @@ export default {
         title: '订单编号',
         dataIndex: 'code'
       }, {
-        title: '订单总价',
-        dataIndex: 'totalCost',
+        title: '订单价格',
+        dataIndex: 'amount',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text + '元'
@@ -122,13 +114,28 @@ export default {
         }
       }, {
         title: '评价客户',
-        dataIndex: 'name'
+        dataIndex: 'userName'
       }, {
-        title: '药房名称',
-        dataIndex: 'pharmacyName'
+        title: '头像',
+        dataIndex: 'userImages',
+        customRender: (text, record, index) => {
+          if (!record.images) return <a-avatar shape="square" icon="user" />
+          return <a-popover>
+            <template slot="content">
+              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
+            </template>
+            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
+          </a-popover>
+        }
       }, {
-        title: '评价得分',
-        dataIndex: 'score',
+        title: '初始地址',
+        dataIndex: 'startAddress'
+      }, {
+        title: '运输地址',
+        dataIndex: 'endAddress'
+      }, {
+        title: '综合得分',
+        dataIndex: 'overScore',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text + '分'
@@ -213,7 +220,7 @@ export default {
         centered: true,
         onOk () {
           let ids = that.selectedRowKeys.join(',')
-          that.$delete('/cos/order-evaluate/' + ids).then(() => {
+          that.$delete('/cos/evaluate-info/' + ids).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
             that.search()
@@ -286,7 +293,7 @@ export default {
       if (params.type === undefined) {
         delete params.type
       }
-      this.$get('/cos/order-evaluate/page', {
+      this.$get('/cos/evaluate-info/page', {
         ...params
       }).then((r) => {
         let data = r.data.data
