@@ -34,6 +34,13 @@ public interface IOrderInfoService extends IService<OrderInfo> {
     boolean checkOrder(String orderCode, String driverCode, String staffCodeStr) throws Exception;
 
     /**
+     * 查询待分配和未完成订单
+     *
+     * @return 结果
+     */
+    LinkedHashMap<String, Object> selectOrderByStatus();
+
+    /**
      * 主页信息
      *
      * @return 结果

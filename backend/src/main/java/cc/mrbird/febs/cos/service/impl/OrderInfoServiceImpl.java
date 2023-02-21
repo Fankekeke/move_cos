@@ -1,5 +1,6 @@
 package cc.mrbird.febs.cos.service.impl;
 
+import cc.mrbird.febs.cos.dao.StaffInfoMapper;
 import cc.mrbird.febs.cos.dao.UserInfoMapper;
 import cc.mrbird.febs.cos.entity.*;
 import cc.mrbird.febs.cos.dao.OrderInfoMapper;
@@ -39,6 +40,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     private final INotifyInfoService notifyInfoService;
 
+    private final StaffInfoMapper staffInfoMapper;
+
     /**
      * 分页获取订单信息
      *
@@ -76,6 +79,28 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }
         orderInfo.setStatus(2);
         return this.updateById(orderInfo);
+    }
+
+    /**
+     * 查询待分配和未完成订单
+     *
+     * @return 结果
+     */
+    @Override
+    public LinkedHashMap<String, Object> selectOrderByStatus() {
+        // 返回数据
+        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+        // 查询所有未分配订单数据
+        List<LinkedHashMap<String, Object>> unassigned = baseMapper.selectOrderByStatus(1);
+        result.put("unassigned", unassigned);
+        // 查询所有正在进行的订单数据
+        List<LinkedHashMap<String, Object>> progress = baseMapper.selectOrderByStatus(2);
+        progress.forEach(e -> {
+            // 查询搬运工,驾驶员信息
+            e.put("staff", staffInfoMapper.selectStaffByOrder(e.get("code").toString()));
+        });
+        result.put("progress", progress);
+        return result;
     }
 
     /**

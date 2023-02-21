@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * @author FanK
@@ -21,4 +22,11 @@ public interface StaffInfoMapper extends BaseMapper<StaffInfo> {
      * @return 结果
      */
     IPage<LinkedHashMap<String, Object>> selectStaffPage(Page<StaffInfo> page, @Param("staffInfo") StaffInfo staffInfo);
+
+    /**
+     * 根据订单编号获取搬运工，司机信息
+     *
+     * @param orderCode 订单编号
+     */
+    List<LinkedHashMap<String, Object>> selectStaffByOrder(@Param("orderCode") String orderCode);
 }

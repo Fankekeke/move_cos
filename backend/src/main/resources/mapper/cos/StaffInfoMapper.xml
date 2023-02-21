@@ -29,4 +29,33 @@
         order by
         si.create_date desc
     </select>
+
+    <!-- 根据订单编号获取搬运工，司机信息 -->
+    <select id="selectStaffByOrder" resultType="java.util.LinkedHashMap">
+        select
+        si.code,
+        si.name,
+        si.images,
+        '1' as type
+        from
+        order_distribute od
+        left join staff_info si on
+        (si.code = od.staff_code)
+        where
+        1 = 1
+        and od.order_code = #{orderCode}
+        union
+        select
+        si2.code,
+        si2.name,
+        si2.images,
+        '2' as type
+        from
+        order_info oi
+        left join staff_info si2 on
+        (si2.code = oi.driver_code)
+        where
+        1 = 1
+        and oi.code = #{orderCode}
+    </select>
 </mapper>

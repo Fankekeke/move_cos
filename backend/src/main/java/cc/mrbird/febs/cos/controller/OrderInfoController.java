@@ -62,6 +62,16 @@ public class OrderInfoController {
     }
 
     /**
+     * 查询待分配和未完成订单
+     *
+     * @return 结果
+     */
+    @GetMapping("/selectOrderByStatus")
+    public R selectOrderByStatus() {
+        return R.ok(orderInfoService.selectOrderByStatus());
+    }
+
+    /**
      * 主页信息
      *
      * @return 结果

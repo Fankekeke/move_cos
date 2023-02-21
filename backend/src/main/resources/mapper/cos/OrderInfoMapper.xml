@@ -43,6 +43,42 @@
         oi.create_date desc
     </select>
 
+    <!-- 根据状态获取订单信息 -->
+    <select id="selectOrderByStatus" resultType="java.util.LinkedHashMap">
+        select
+        oi.id,
+        oi.code,
+        oi.user_id,
+        oi.vehicle_options,
+        oi.staff_options,
+        oi.start_address,
+        oi.end_address,
+        oi.start_longitude,
+        oi.start_latitude,
+        oi.end_longitude,
+        oi.end_latitude,
+        oi.distance_length,
+        oi.images,
+        oi.status,
+        oi.create_date,
+        oi.amount,
+        oi.driver_code,
+        ui.name as userName,
+        ui.phone,
+        ui.images as userImages
+        from
+        order_info oi
+        left join user_info ui on
+        (ui.id = oi.user_id)
+        where
+        1 = 1
+        <if test="orderInfo.status != null">
+            AND oi.status = #{orderInfo.status}
+        </if>
+        order by
+        oi.create_date desc
+    </select>
+
     <!-- 近十天内订单数量统计 -->
     <select id="selectOrderNumDays" resultType="java.util.LinkedHashMap">
         SELECT
