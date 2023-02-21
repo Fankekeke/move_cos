@@ -52,5 +52,12 @@ public class NotifyInfo implements Serializable {
      */
     private String name;
 
+    public NotifyInfo(String userCode, Integer delFlag, String createDate, String name) {
+        this.userCode = userCode;
+        this.delFlag = delFlag;
+        this.createDate = createDate;
+        this.name = name;
+    }
 
+    public NotifyInfo() {}
 }

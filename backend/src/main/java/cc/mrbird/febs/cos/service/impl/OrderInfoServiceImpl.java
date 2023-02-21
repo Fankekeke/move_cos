@@ -6,11 +6,14 @@ import cc.mrbird.febs.cos.entity.*;
 import cc.mrbird.febs.cos.dao.OrderInfoMapper;
 import cc.mrbird.febs.cos.service.*;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.googlecode.aviator.AviatorEvaluator;
+import com.googlecode.aviator.Expression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,6 +60,36 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     /**
+     * 设置订单状态
+     *
+     * @param orderCode 订单编号
+     * @param status    状态
+     * @return 结果
+     */
+    @Override
+    public boolean audit(String orderCode, Integer status) {
+        // 获取订单信息
+        OrderInfo orderInfo = this.getOne(Wrappers.<OrderInfo>lambdaQuery().eq(OrderInfo::getCode, orderCode));
+        // 用户信息
+        UserInfo userInfo = userInfoMapper.selectById(orderInfo.getUserId());
+        NotifyInfo notifyInfo = new NotifyInfo(userInfo.getCode(), 0, DateUtil.formatDateTime(new Date()), userInfo.getName());
+        switch (status) {
+            case 1:
+                notifyInfo.setContent("你好【" + orderInfo.getCode() + "】，此订单已付款，正在等待管理员分配人员");
+                break;
+            case 2:
+                notifyInfo.setContent("你好【" + orderInfo.getCode() + "】，此订单管理员已分配完成，请等待");
+                break;
+            case 3:
+                notifyInfo.setContent("你好【" + orderInfo.getCode() + "】，此订单已经完成，请进行评价");
+                break;
+            default:
+        }
+        notifyInfoService.save(notifyInfo);
+        return this.update(Wrappers.<OrderInfo>lambdaUpdate().set(OrderInfo::getStatus, status).eq(OrderInfo::getCode, orderCode));
+    }
+
+    /**
      * 管理员对订单分配
      *
      * @param orderCode    订单编号
@@ -85,7 +118,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     /**
      * 计算订单价格
-     * 价格公式【基础金额 + (距离 * 距离单价) + 配送车辆金额 + (配送员数量 * 配送员金额) + 无电梯费用无电梯费用】
+     * 价格公式【基础金额 + (距离 * 距离单价) + 配送车辆金额 + (配送员数量 * 配送员金额) + 无电梯费用】
      *
      * @param orderInfo 订单信息
      * @return 结果
@@ -98,20 +131,19 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         Map<String, BigDecimal> rulesMap = priceRules.stream().collect(Collectors.toMap(PriceRules::getCode, PriceRules::getUnitPrice));
         // 价格公式
         String expression = "";
-        // Expression compiledExp = AviatorEvaluator.compile(expression);
+        Expression compiledExp = AviatorEvaluator.compile(expression);
         Map<String, Object> env = new HashMap<>();
         env.put("基础金额", 100.3);
         env.put("距离", orderInfo.getDistanceLength());
         env.put("距离单价", -199.100);
         env.put("配送车辆金额", -199.100);
-        env.put("配送员数量", 2);
+        env.put("配送员数量", orderInfo.getStaffOptions() != null ? orderInfo.getStaffOptions() : 0);
         env.put("配送员金额", 2);
-        env.put("配送员金额", 2);
-        // Boolean result = (Boolean) compiledExp.execute(env);
+        env.put("无电梯费用", 2);
         if (orderInfo.getVehicleOptions() != null) {
 
         }
-        return null;
+        return new BigDecimal(compiledExp.execute(env).toString());
     }
 
     /**

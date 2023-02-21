@@ -25,6 +25,15 @@ public interface IOrderInfoService extends IService<OrderInfo> {
     IPage<LinkedHashMap<String, Object>> selectOrderPage(Page<OrderInfo> page, OrderInfo orderInfo);
 
     /**
+     * 设置订单状态
+     *
+     * @param orderCode 订单编号
+     * @param status    状态
+     * @return 结果
+     */
+    boolean audit(String orderCode, Integer status);
+
+    /**
      * 管理员对订单分配
      *
      * @param orderCode    订单编号
