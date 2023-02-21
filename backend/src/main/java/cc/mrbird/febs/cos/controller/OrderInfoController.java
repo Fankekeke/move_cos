@@ -62,6 +62,17 @@ public class OrderInfoController {
     }
 
     /**
+     * 根据订单编号获取订单详细信息
+     *
+     * @param orderCode 订单编号
+     * @return 结果
+     */
+    @GetMapping("/detail/{orderCode}")
+    public R selectDetailByCode(@PathVariable("orderCode") String orderCode) {
+        return R.ok();
+    }
+
+    /**
      * 查询待分配和未完成订单
      *
      * @return 结果

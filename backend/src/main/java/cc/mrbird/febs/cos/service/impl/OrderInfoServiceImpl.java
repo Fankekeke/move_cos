@@ -82,6 +82,17 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     /**
+     * 根据订单编号获取订单详细信息
+     *
+     * @param orderCode 订单编号
+     * @return 结果
+     */
+    @Override
+    public LinkedHashMap<String, Object> selectDetailByCode(String orderCode) {
+        return null;
+    }
+
+    /**
      * 查询待分配和未完成订单
      *
      * @return 结果

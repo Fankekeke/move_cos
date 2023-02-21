@@ -47,6 +47,9 @@ public class NotifyInfo implements Serializable {
      */
     private String createDate;
 
+    /**
+     * 用户姓名
+     */
     private String name;
 
 
