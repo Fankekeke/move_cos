@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -32,6 +33,14 @@ public interface IOrderInfoService extends IService<OrderInfo> {
      * @return 结果
      */
     boolean checkOrder(String orderCode, String driverCode, String staffCodeStr) throws Exception;
+
+    /**
+     * 计算订单价格
+     *
+     * @param orderInfo 订单信息
+     * @return 结果
+     */
+    BigDecimal calculateAmount(OrderInfo orderInfo);
 
     /**
      * 根据订单编号获取订单详细信息

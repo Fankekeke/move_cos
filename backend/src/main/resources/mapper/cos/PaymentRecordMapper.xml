@@ -11,6 +11,8 @@
         pr.amount,
         pr.create_date,
         oi.amount,
+        oi.start_address,
+        oi.end_address,
         ui.name as userName,
         ui.phone,
         ui.images as userImages

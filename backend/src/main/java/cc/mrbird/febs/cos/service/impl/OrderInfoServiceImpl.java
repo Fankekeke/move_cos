@@ -16,9 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +39,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private final INotifyInfoService notifyInfoService;
 
     private final StaffInfoMapper staffInfoMapper;
+
+    private final IEvaluateInfoService evaluateInfoService;
+
+    private final IPriceRulesService priceRulesService;
 
     /**
      * 分页获取订单信息
@@ -82,6 +84,37 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     /**
+     * 计算订单价格
+     * 价格公式【基础金额 + (距离 * 距离单价) + 配送车辆金额 + (配送员数量 * 配送员金额) + 无电梯费用无电梯费用】
+     *
+     * @param orderInfo 订单信息
+     * @return 结果
+     */
+    @Override
+    public BigDecimal calculateAmount(OrderInfo orderInfo) {
+        // 获取价格计算规则
+        List<PriceRules> priceRules = priceRulesService.list();
+        // 规则根据编号转MAP
+        Map<String, BigDecimal> rulesMap = priceRules.stream().collect(Collectors.toMap(PriceRules::getCode, PriceRules::getUnitPrice));
+        // 价格公式
+        String expression = "";
+        // Expression compiledExp = AviatorEvaluator.compile(expression);
+        Map<String, Object> env = new HashMap<>();
+        env.put("基础金额", 100.3);
+        env.put("距离", orderInfo.getDistanceLength());
+        env.put("距离单价", -199.100);
+        env.put("配送车辆金额", -199.100);
+        env.put("配送员数量", 2);
+        env.put("配送员金额", 2);
+        env.put("配送员金额", 2);
+        // Boolean result = (Boolean) compiledExp.execute(env);
+        if (orderInfo.getVehicleOptions() != null) {
+
+        }
+        return null;
+    }
+
+    /**
      * 根据订单编号获取订单详细信息
      *
      * @param orderCode 订单编号
@@ -89,7 +122,33 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
      */
     @Override
     public LinkedHashMap<String, Object> selectDetailByCode(String orderCode) {
-        return null;
+        if (StrUtil.isEmpty(orderCode)) {
+            return null;
+        }
+        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+        // 订单信息
+        OrderInfo orderInfo = this.getOne(Wrappers.<OrderInfo>lambdaQuery().eq(OrderInfo::getCode, orderCode));
+        result.put("order", orderInfo);
+        // 员工信息
+        List<OrderDistribute> orderDistributeList = orderDistributeService.list(Wrappers.<OrderDistribute>lambdaQuery().eq(OrderDistribute::getOrderCode, orderCode));
+        List<String> staffCodes = new ArrayList<>();
+        if (StrUtil.isNotEmpty(orderInfo.getDriverCode())) {
+            staffCodes.add(orderInfo.getDriverCode());
+        }
+        if (CollectionUtil.isNotEmpty(orderDistributeList)) {
+            orderDistributeList.forEach(e -> {
+                staffCodes.add(e.getStaffCode());
+            });
+        }
+        List<StaffInfo> staffInfoList = staffInfoService.list(Wrappers.<StaffInfo>lambdaQuery().in(CollectionUtil.isNotEmpty(staffCodes), StaffInfo::getCode, staffCodes));
+        result.put("staff", staffInfoList);
+        // 评价
+        EvaluateInfo evaluate = evaluateInfoService.getOne(Wrappers.<EvaluateInfo>lambdaQuery().eq(EvaluateInfo::getOrderCode, orderCode));
+        result.put("evaluate", evaluate);
+        // 用户信息
+        UserInfo userInfo = userInfoMapper.selectById(orderInfo.getUserId());
+        result.put("user", userInfo);
+        return result;
     }
 
     /**

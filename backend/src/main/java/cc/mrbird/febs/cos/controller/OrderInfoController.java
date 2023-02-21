@@ -62,6 +62,17 @@ public class OrderInfoController {
     }
 
     /**
+     * 计算订单价格
+     *
+     * @param orderInfo 订单信息
+     * @return 结果
+     */
+    @PostMapping("/calculate")
+    public R calculateAmount(OrderInfo orderInfo) {
+        return R.ok(orderInfoService.calculateAmount(orderInfo));
+    }
+
+    /**
      * 根据订单编号获取订单详细信息
      *
      * @param orderCode 订单编号
@@ -69,7 +80,7 @@ public class OrderInfoController {
      */
     @GetMapping("/detail/{orderCode}")
     public R selectDetailByCode(@PathVariable("orderCode") String orderCode) {
-        return R.ok();
+        return R.ok(orderInfoService.selectDetailByCode(orderCode));
     }
 
     /**
@@ -121,6 +132,8 @@ public class OrderInfoController {
      */
     @PostMapping
     public R save(OrderInfo orderInfo) {
+        orderInfo.setCode("OR-" + System.currentTimeMillis());
+        orderInfo.setStatus(0);
         orderInfo.setCreateDate(DateUtil.formatDateTime(new Date()));
         return R.ok(orderInfoService.save(orderInfo));
     }

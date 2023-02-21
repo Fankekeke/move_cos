@@ -89,7 +89,7 @@ public class OrderInfo implements Serializable {
     private String images;
 
     /**
-     * 订单状态（1.等待分配 2.正在赶往 3.运输完成）
+     * 订单状态（0.未支付 1.等待分配 2.正在赶往 3.运输完成）
      */
     private Integer status;
 
@@ -107,6 +107,11 @@ public class OrderInfo implements Serializable {
      * 司机编号
      */
     private String driverCode;
+
+    /**
+     * 是否有电梯（0：无 1：有）
+     */
+    private Integer hasElevator;
 
     @TableField(exist = false)
     private String userName;

@@ -103,13 +103,25 @@ export default {
         title: '订单编号',
         dataIndex: 'orderCode'
       }, {
+        title: '头像',
+        dataIndex: 'userImages',
+        customRender: (text, record, index) => {
+          if (!record.userImages) return <a-avatar shape="square" icon="user" />
+          return <a-popover>
+            <template slot="content">
+              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.userImages.split(',')[0] } />
+            </template>
+            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.userImages.split(',')[0] } />
+          </a-popover>
+        }
+      }, {
         title: '客户名称',
         dataIndex: 'userName',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
           } else {
-            return <a-tag>平台内下单</a-tag>
+            return '- -'
           }
         }
       }, {
@@ -123,8 +135,8 @@ export default {
           }
         }
       }, {
-        title: '缴费金额',
-        dataIndex: 'money',
+        title: '付款金额',
+        dataIndex: 'amount',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text + '元'
@@ -133,8 +145,8 @@ export default {
           }
         }
       }, {
-        title: '药店名称',
-        dataIndex: 'pharmacyName',
+        title: '起始地址',
+        dataIndex: 'startAddress',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -143,20 +155,8 @@ export default {
           }
         }
       }, {
-        title: '药店图片',
-        dataIndex: 'images',
-        customRender: (text, record, index) => {
-          if (!record.images) return <a-avatar shape="square" icon="user" />
-          return <a-popover>
-            <template slot="content">
-              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
-            </template>
-            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
-          </a-popover>
-        }
-      }, {
-        title: '药店地址',
-        dataIndex: 'address',
+        title: '运输地址',
+        dataIndex: 'endAddress',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
