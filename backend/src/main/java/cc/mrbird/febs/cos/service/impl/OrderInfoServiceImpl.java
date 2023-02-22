@@ -117,6 +117,44 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     /**
+     * 添加评价信息
+     *
+     * @param evaluateInfo 评价信息
+     * @return 结果
+     */
+    @Override
+    public boolean orderEvaluate(EvaluateInfo evaluateInfo) {
+        evaluateInfo.setCreateDate(DateUtil.formatDateTime(new Date()));
+        // 计算综合得分
+        if (evaluateInfo.getDeliverScore() == null) {
+            evaluateInfo.setDeliverScore(BigDecimal.valueOf(80));
+        }
+        if (evaluateInfo.getPriceScore() == null) {
+            evaluateInfo.setPriceScore(BigDecimal.valueOf(80));
+        }
+        if (evaluateInfo.getQualityScore() == null) {
+            evaluateInfo.setQualityScore(BigDecimal.valueOf(80));
+        }
+        if (evaluateInfo.getScheduleScore() == null) {
+            evaluateInfo.setScheduleScore(BigDecimal.valueOf(80));
+        }
+        if (evaluateInfo.getServiceSocre() == null) {
+            evaluateInfo.setServiceSocre(BigDecimal.valueOf(80));
+        }
+        // 综合得分公式【(交付得分 + 价格得分 + 质量得分 + 准时得分 + 服务得分) / 5 】
+        String expression = "";
+        Expression compiledExp = AviatorEvaluator.compile(expression);
+        Map<String, Object> env = new HashMap<>();
+        env.put("交付得分", evaluateInfo.getDeliverScore());
+        env.put("价格得分", evaluateInfo.getPriceScore());
+        env.put("质量得分", evaluateInfo.getQualityScore());
+        env.put("准时得分", evaluateInfo.getScheduleScore());
+        env.put("服务得分", evaluateInfo.getServiceSocre());
+        evaluateInfo.setOverScore(new BigDecimal(compiledExp.execute(env).toString()));
+        return evaluateInfoService.save(evaluateInfo);
+    }
+
+    /**
      * 计算订单价格
      * 价格公式【基础金额 + (距离 * 距离单价) + 配送车辆金额 + (配送员数量 * 配送员金额) + 无电梯费用】
      *

@@ -1,5 +1,6 @@
 package cc.mrbird.febs.cos.service;
 
+import cc.mrbird.febs.cos.entity.EvaluateInfo;
 import cc.mrbird.febs.cos.entity.OrderInfo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -42,6 +43,14 @@ public interface IOrderInfoService extends IService<OrderInfo> {
      * @return 结果
      */
     boolean checkOrder(String orderCode, String driverCode, String staffCodeStr) throws Exception;
+
+    /**
+     * 添加评价信息
+     *
+     * @param evaluateInfo 评价信息
+     * @return 结果
+     */
+    boolean orderEvaluate(EvaluateInfo evaluateInfo);
 
     /**
      * 计算订单价格
