@@ -17,50 +17,65 @@
         <a-col :span="6" style="height: 100%;box-shadow: 3px 3px 3px rgba(0, 0, 0, .2);color:#fff">
           <div>
             <div v-if="rentShow" class="scenicInfo" style="height: 100vh; overflow-y: auto;padding-left: 5px;overflow-x: hidden">
-              <a-carousel autoplay style="height: 250px;" v-if="rentData.roomPictures !== undefined && rentData.roomPictures !== ''">
-                <div style="width: 100%;height: 250px" v-for="(item, index) in rentData.roomPictures.split(',')" :key="index">
+              <a-carousel autoplay style="height: 250px;" v-if="orderData.images !== undefined && orderData.images !== ''">
+                <div style="width: 100%;height: 250px" v-for="(item, index) in orderData.images.split(',')" :key="index">
                   <img :src="'http://127.0.0.1:9527/imagesWeb/'+item" style="width: 100%;height: 100%">
                 </div>
               </a-carousel>
-              <a-card :title="rentData.houseAddress" :bordered="false">
+              <a-card :title="orderData.startAddress" :bordered="false">
                 <a slot="extra" @click="rentNavigation" style="margin-right: 10px">导航</a>
                 <a slot="extra" @click="rentBack">返回</a>
               </a-card>
               <div style="font-size: 12px;font-family: SimHei;color: #404040;margin-top: 15px">
                 <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col :span="24"><b>出租标题：</b>
-                    {{ rentData.title !== null ? rentData.title : '- -' }}
+                  <a-col :span="24"><b>订单编号：</b>
+                    {{ orderData.code !== null ? orderData.code : '- -' }}
                   </a-col>
                 </a-row>
                 <br/>
                 <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col :span="8"><b>租金每月：</b>
-                    {{ rentData.rentPrice !== null ? rentData.rentPrice : '- -' }}元
+                  <a-col :span="8"><b>客户编号：</b>
+                    {{ userData.code !== null ? userData.code : '- -' }}
                   </a-col>
-                  <a-col :span="8"><b>出租状态：</b>
-                    <span v-if="rentData.flag === 1">上架</span>
-                    <span v-if="rentData.flag === 2">下架</span>
-                    <span v-if="rentData.flag === 2">已被出租</span>
+                  <a-col :span="8"><b>客户名称：</b>
+                    {{ userData.name !== null ? userData.name : '- -' }}
                   </a-col>
-                  <a-col :span="8"><b>合租类型：</b>
-                    <span v-if="rentData.rentType === 1">整租</span>
-                    <span v-if="rentData.rentType === 2">合租</span>
+                  <a-col :span="8"><b>联系方式：</b>
+                    {{ userData.phone !== null ? userData.phone : '- -' }}
                   </a-col>
                 </a-row>
                 <br/>
                 <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col :span="8"><b>访问量：</b>
-                    {{ rentData.views !== null ? rentData.views : '- -' }}次
+                  <a-col :span="8"><b>订单金额：</b>
+                    {{ orderData.amount !== null ? orderData.amount : '- -' }}元
                   </a-col>
-                  <a-col :span="8"><b>房间类型：</b>
-                    <span v-if="rentData.roomType === 1">主卧</span>
-                    <span v-if="rentData.roomType === 2">次卧</span>
+                  <a-col :span="8"><b>订单状态：</b>
+                    <span v-if="orderData.status === 0">未支付</span>
+                    <span v-if="orderData.roomType === 1">正在分配</span>
+                    <span v-if="orderData.roomType === 1">运输中</span>
+                    <span v-if="orderData.roomType === 1">运输完成</span>
                   </a-col>
                 </a-row>
                 <br/>
                 <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col :span="12"><b>发布时间：</b>
-                    {{ rentData.createDate !== null ? rentData.createDate : '- -' }}
+                  <a-col :span="8"><b>车辆配置：</b>
+                    <span v-if="orderData.vehicleOptions == null">不需要车辆</span>
+                    <span v-if="orderData.vehicleOptions == 1">大型车</span>
+                    <span v-if="orderData.vehicleOptions == 2">中型车</span>
+                    <span v-if="orderData.vehicleOptions == 3">小型车</span>
+                  </a-col>
+                  <a-col :span="8"><b>搬运工：</b>
+                    {{ orderData.staffOptions }} 个
+                  </a-col>
+                  <a-col :span="8"><b>是否有电梯：</b>
+                    <span v-if="orderData.hasElevator == 0" style="color: red">无电梯</span>
+                    <span v-if="orderData.hasElevator == 1" style="color: red">有电梯</span>
+                  </a-col>
+                </a-row>
+                <br/>
+                <a-row style="padding-left: 24px;padding-right: 24px;">
+                  <a-col :span="12"><b>下单时间：</b>
+                    {{ orderData.createDate !== null ? orderData.createDate : '- -' }}
                   </a-col>
                 </a-row>
                 <br/>
@@ -85,151 +100,43 @@
                 </a-row>
                 <br/>
                 <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">租金备注</span></a-col>
-                  {{ rentData.rentRemark !== null ? rentData.rentRemark : '- -' }}元
+                  <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">起始地址</span></a-col>
+                  {{ orderData.startAddress !== null ? orderData.startAddress : '- -' }}
                 </a-row>
                 <br/>
                 <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">出租要求</span></a-col>
-                  {{ rentData.rentalRequest !== null ? rentData.rentalRequest : '- -' }}元
+                  <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">运输地址</span></a-col>
+                  {{ orderData.endAddress !== null ? orderData.endAddress : '- -' }}
                 </a-row>
                 <br/>
                 <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">房间信息</span></a-col>
-                  <a-col :span="12"><b>房间数量：</b>
-                    {{ houseInfo.roomNumber !== null ? houseInfo.roomNumber : '- -' }}
-                  </a-col>
-                  <a-col :span="12"><b>客厅数量：</b>
-                    {{ houseInfo.livingRoomNumber !== null ? houseInfo.livingRoomNumber : '- -' }}
+                  <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">总距离</span></a-col>
+                  <a-col :span="12">
+                    {{ orderData.distanceLength !== null ? (orderData.distanceLength + '千米') : '- -' }}
                   </a-col>
                 </a-row>
                 <br/>
                 <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col :span="12"><b>卫生间数量：</b>
-                    {{ houseInfo.bathroomNumber !== null ? houseInfo.bathroomNumber : '- -' }}
+                  <a-col :span="12"><b>起始经度：</b>
+                    {{ orderData.startLongitude !== null ? orderData.startLongitude : '- -' }}
                   </a-col>
-                  <a-col :span="12"><b>装修类型：</b>
-                    <span v-if="houseInfo.decorationType === 1">精装修</span>
-                    <span v-if="houseInfo.decorationType === 2">普通装修</span>
-                    <span v-if="houseInfo.decorationType === 3">暂无装修</span>
+                  <a-col :span="12"><b>起始纬度：</b>
+                    {{ orderData.startLatitude !== null ? orderData.startLatitude : '- -' }}
                   </a-col>
                 </a-row>
                 <br/>
                 <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col :span="12"><b>小区编号：</b>
-                    {{ community.code !== null ? community.code : '- -' }}
+                  <a-col :span="12"><b>运输经度：</b>
+                    {{ orderData.endLongitude !== null ? orderData.endLongitude : '- -' }}
                   </a-col>
-                  <a-col :span="12"><b>所在地：</b>
-                    {{ houseInfo.address !== null ? houseInfo.address : '- -' }}
-                  </a-col>
-                </a-row>
-                <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col :span="12"><b>房间面积：</b>
-                    {{ houseInfo.roomSize !== null ? houseInfo.roomSize : '- -' }}
-                  </a-col>
-                  <a-col :span="12"><b>楼层：</b>
-                    {{ houseInfo.floor !== null ? houseInfo.floor : '- -' }}
+                  <a-col :span="12"><b>运输纬度：</b>
+                    {{ orderData.endLatitude !== null ? orderData.endLatitude : '- -' }}
                   </a-col>
                 </a-row>
                 <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col :span="12"><b>经度：</b>
-                    {{ houseInfo.longitude !== null ? houseInfo.longitude : '- -' }}
-                  </a-col>
-                  <a-col :span="12"><b>纬度：</b>
-                    {{ houseInfo.latitude !== null ? houseInfo.latitude : '- -' }}
-                  </a-col>
-                </a-row>
-                <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col :span="12"><b>房屋类型：</b>
-                    <span v-if="houseInfo.rentType === 1">普通住宅</span>
-                    <span v-if="houseInfo.rentType === 2">高层楼</span>
-                    <span v-if="houseInfo.rentType === 3">别墅</span>
-                    <span v-if="houseInfo.rentType === 3">大平层</span>
-                  </a-col>
-                  <a-col :span="12"><b>朝向：</b>
-                    {{ houseInfo.towards !== null ? houseInfo.towards : '- -' }}
-                  </a-col>
-                </a-row>
-                <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;">
-                  <a-col :span="12"><b>标签：</b>
-                    {{ houseInfo.tags !== null ? houseInfo.tags : '- -' }}
-                  </a-col>
-                  <a-col :span="12"><b>所属小区：</b>
-                    {{ community.communityName !== null ? community.communityName : '- -' }}
-                  </a-col>
-                </a-row>
-                <br/>
-                <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;" v-if="community != null">
-                  <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">所属物业配套</span></a-col>
-                  <a-col :span="12"><b>绿化率：</b>
-                    {{ community.greeningRate !== null ? community.greeningRate : '- -' }}
-                  </a-col>
-                  <a-col :span="12"><b>建筑类型：</b>
-                    <span v-if="community.buildingType === 1">居住建筑</span>
-                    <span v-if="community.buildingType === 2">公共建筑</span>
-                    <span v-if="community.buildingType === 3">工业建筑</span>
-                    <span v-if="community.buildingType === 4">农业建筑</span>
-                    <span v-if="community.buildingType === 5">大量性建筑</span>
-                    <span v-if="community.buildingType == null">- -</span>
-                  </a-col>
-                </a-row>
-                <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;" v-if="community != null">
-                  <a-col :span="12"><b>统一供暖：</b>
-                    <span v-if="community.unifiedHeating === 1" style="color: green">是</span>
-                    <span v-if="community.unifiedHeating === 2" style="color: red">否</span>
-                    <span v-if="community.unifiedHeating == null">- -</span>
-                  </a-col>
-                  <a-col :span="12"><b>供水供电：</b>
-                    <span v-if="community.waterSupply === 1">民用</span>
-                    <span v-if="community.waterSupply === 2">商用</span>
-                    <span v-if="community.waterSupply == null">- -</span>
-                  </a-col>
-                </a-row>
-                <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;" v-if="community != null">
-                  <a-col :span="12"><b>停车位：</b>
-                    {{ community.parkingSpace !== null ? community.parkingSpace : '- -' }}
-                  </a-col>
-                  <a-col :span="12"><b>所属商圈：</b>
-                    {{ community.businessDistrict !== null ? community.businessDistrict : '- -' }}
-                  </a-col>
-                </a-row>
-                <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;" v-if="community != null">
-                  <a-col :span="12"><b>物业费：</b>
-                    {{ community.propertyCosts !== null ? community.propertyCosts : '- -' }}
-                  </a-col>
-                  <a-col :span="12"><b>停车费：</b>
-                    {{ community.parkingFee !== null ? community.parkingFee : '- -' }}
-                  </a-col>
-                </a-row>
-                <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;" v-if="community != null">
-                  <a-col :span="12"><b>物业公司：</b>
-                    {{ community.propertyCompany !== null ? community.propertyCompany : '- -' }}
-                  </a-col>
-                  <a-col :span="12"><b>开发商：</b>
-                    {{ community.developer !== null ? community.developer : '- -' }}
-                  </a-col>
-                </a-row>
-                <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;margin-bottom: 25px" v-if="community != null">
-                  <a-col :span="12"><b>车位管理费：</b>
-                    {{ community.parkingManagementFee !== null ? community.parkingManagementFee : '- -' }}
-                  </a-col>
-                  <a-col :span="12"><b>位置：</b>
-                    {{  rentData.province + rentData.city + rentData.area }}
-                  </a-col>
-                </a-row>
                 <br/>
                 <a-row style="padding-left: 24px;padding-right: 24px;" v-if="communityData != null">
-                  <a-col><span style="font-size: 14px;font-weight: 650;color: #000c17">房价走势-{{ new Date().getFullYear() }}年</span></a-col>
+                  <a-col><span style="font-size: 14px;font-weight: 650;color: #000c17">订单评价</span></a-col>
                 </a-row>
                 <a-card v-if="echartsShow" hoverable :bordered="false" style="width: 100%">
                   <a-skeleton active v-if="checkLoading" />
@@ -270,7 +177,7 @@ export default {
     return {
       communityRent: 0,
       rentShow: false,
-      rentData: null,
+      orderData: null,
       communityShow: false,
       communityData: null,
       checkedList: ['Apple', 'Orange'],
@@ -281,7 +188,7 @@ export default {
       rentList: [],
       communityList: [],
       community: null,
-      houseInfo: null,
+      orderData: null,
       nowPoint: null,
       roadData: [],
       checkLoading: false,
