@@ -129,20 +129,30 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         List<PriceRules> priceRules = priceRulesService.list();
         // 规则根据编号转MAP
         Map<String, BigDecimal> rulesMap = priceRules.stream().collect(Collectors.toMap(PriceRules::getCode, PriceRules::getUnitPrice));
+        BigDecimal vehiclePrice = BigDecimal.ZERO;
+        switch (orderInfo.getVehicleOptions()) {
+            case 1:
+                vehiclePrice = rulesMap.get("LARGE_VEHICLE");
+                break;
+            case 2:
+                vehiclePrice = rulesMap.get("MEDIUM_VEHICLE");
+                break;
+            case 3:
+                vehiclePrice = rulesMap.get("SMALL_VEHICLE");
+                break;
+            default:
+        }
         // 价格公式
         String expression = "";
         Expression compiledExp = AviatorEvaluator.compile(expression);
         Map<String, Object> env = new HashMap<>();
-        env.put("基础金额", 100.3);
+        env.put("基础金额", rulesMap.get("BASE_PRICE"));
         env.put("距离", orderInfo.getDistanceLength());
-        env.put("距离单价", -199.100);
-        env.put("配送车辆金额", -199.100);
+        env.put("距离单价", rulesMap.get("DISTANCE_PRICE"));
+        env.put("配送车辆金额", vehiclePrice);
         env.put("配送员数量", orderInfo.getStaffOptions() != null ? orderInfo.getStaffOptions() : 0);
-        env.put("配送员金额", 2);
-        env.put("无电梯费用", 2);
-        if (orderInfo.getVehicleOptions() != null) {
-
-        }
+        env.put("配送员金额", rulesMap.get("STAFF_PRICE"));
+        env.put("无电梯费用", rulesMap.get("NOT_ELEVATOR"));
         return new BigDecimal(compiledExp.execute(env).toString());
     }
 
