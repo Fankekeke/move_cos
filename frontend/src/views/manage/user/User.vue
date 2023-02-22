@@ -107,23 +107,43 @@ export default {
     }),
     columns () {
       return [{
+        title: '客户编号',
+        dataIndex: 'code'
+      }, {
         title: '客户名称',
         dataIndex: 'name'
       }, {
         title: '联系方式',
-        dataIndex: 'phone'
+        dataIndex: 'phone',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
       }, {
-        title: '收获地址',
-        dataIndex: 'address'
+        title: '邮箱地址',
+        dataIndex: 'mail',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
       }, {
-        title: '省份',
-        dataIndex: 'province'
-      }, {
-        title: '城市',
-        dataIndex: 'city'
-      }, {
-        title: '区',
-        dataIndex: 'area'
+        title: '头像',
+        dataIndex: 'images',
+        customRender: (text, record, index) => {
+          if (!record.images) return <a-avatar shape="square" icon="user" />
+          return <a-popover>
+            <template slot="content">
+              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
+            </template>
+            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
+          </a-popover>
+        }
       }, {
         title: '注册时间',
         dataIndex: 'createDate',
