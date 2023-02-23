@@ -92,8 +92,6 @@ public class User implements Serializable {
     @NotBlank(message = "{required}")
     private transient String roleId;
 
-    private String userCode;
-
     @ExcelField(value = "角色")
     private transient String roleName;
 
