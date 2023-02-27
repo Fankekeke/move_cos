@@ -104,7 +104,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         if (orderInfo == null) {
             return false;
         }
-        // 绑定司机
+        // 绑定司机1
         if (StrUtil.isNotEmpty(driverCode) && orderInfo.getVehicleOptions() != null) {
             orderInfo.setDriverCode(driverCode);
         }
