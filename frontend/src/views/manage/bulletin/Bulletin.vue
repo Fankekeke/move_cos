@@ -150,14 +150,14 @@ export default {
           }
         }
       }, {
-        title: '消息类型',
+        title: '上下架',
         dataIndex: 'type',
         customRender: (text, row, index) => {
           switch (text) {
             case 1:
-              return <a-tag>通知</a-tag>
+              return <a-tag>上架</a-tag>
             case 2:
-              return <a-tag>公告</a-tag>
+              return <a-tag>下架</a-tag>
             default:
               return '- -'
           }

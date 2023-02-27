@@ -20,7 +20,7 @@
         payment_record pr
         left join user_info ui on
         (pr.user_code = ui.code)
-        left join order_info oi om (oi.user_id = ui.id)
+        left join order_info oi on (oi.user_id = ui.id)
         where
         1 = 1
         <if test="paymentRecord.userName != null and paymentRecord.userName != ''">

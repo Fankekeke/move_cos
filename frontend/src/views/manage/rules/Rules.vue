@@ -88,8 +88,8 @@
 
 <script>
 import RangeDate from '@/components/datetime/RangeDate'
-import rulesAdd from './rulesAdd'
-import rulesEdit from './rulesEdit'
+import rulesAdd from './RulesAdd'
+import rulesEdit from './RulesEdit'
 import {mapState} from 'vuex'
 import moment from 'moment'
 moment.locale('zh-cn')
@@ -280,7 +280,7 @@ export default {
         params.size = this.pagination.defaultPageSize
         params.current = this.pagination.defaultCurrent
       }
-      this.$get('/cos/rules-info/page', {
+      this.$get('/cos/price-rules/page', {
         ...params
       }).then((r) => {
         let data = r.data.data

@@ -76,6 +76,7 @@ public class StaffInfoController {
      */
     @PutMapping
     public R edit(StaffInfo staffInfo) {
+        staffInfo.setCode("ST-" + System.currentTimeMillis());
         return R.ok(staffInfoService.updateById(staffInfo));
     }
 

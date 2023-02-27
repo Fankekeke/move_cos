@@ -27,13 +27,13 @@
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label='公告类型' v-bind="formItemLayout">
+          <a-form-item label='上下架' v-bind="formItemLayout">
             <a-select v-decorator="[
               'type',
-              { rules: [{ required: true, message: '请输入公告类型!' }] }
+              { rules: [{ required: true, message: '请输入上下架!' }] }
               ]">
-              <a-select-option value="1">通知</a-select-option>
-              <a-select-option value="2">公告</a-select-option>
+              <a-select-option value="1">上架</a-select-option>
+              <a-select-option value="2">下架</a-select-option>
             </a-select>
           </a-form-item>
         </a-col>
