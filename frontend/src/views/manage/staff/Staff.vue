@@ -124,16 +124,6 @@ export default {
         title: '员工编号',
         dataIndex: 'code'
       }, {
-        title: '所属药店',
-        dataIndex: 'pharmacyName',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
-      }, {
         title: '员工类型',
         dataIndex: 'type',
         customRender: (text, row, index) => {

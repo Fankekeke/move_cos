@@ -9,3 +9,4 @@ out
 gen
 /target/
 /log/
+/frontend/node_modules/
