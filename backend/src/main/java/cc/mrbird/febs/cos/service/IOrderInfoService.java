@@ -61,6 +61,14 @@ public interface IOrderInfoService extends IService<OrderInfo> {
     BigDecimal calculateAmount(OrderInfo orderInfo);
 
     /**
+     * 计算订单价格
+     *
+     * @param orderInfo 订单信息
+     * @return 结果
+     */
+    LinkedHashMap<String, Object> calculateAmountResult(OrderInfo orderInfo);
+
+    /**
      * 根据订单编号获取订单详细信息
      *
      * @param orderCode 订单编号

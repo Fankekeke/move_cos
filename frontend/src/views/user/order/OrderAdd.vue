@@ -1,51 +1,54 @@
 <template>
   <a-drawer
-    title="添加平台订单"
+    title="新增房屋"
     :maskClosable="false"
-    width=1150
+    width=1350
     placement="right"
     :closable="false"
     @close="onClose"
     :visible="orderAddShow"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
-    <a-form :form="form" layout="vertical">
+    <a-form :form="form" layout="vertical" v-if="nextFlag == 1">
       <a-row :gutter="10">
         <a-divider orientation="left">
-          <span style="font-size: 13px">选择起始地址与运输地址</span>
+          <span style="font-size: 13px">始发地</span>
         </a-divider>
         <a-col :span="12">
-          <a-form-item label='初始地址'>
+          <a-form-item label='始发地'>
             <a-input-search
               v-decorator="[
               'startAddress'
               ]"
               enter-button="选择"
-              @search="showChildrenDrawer"
+              @search="showChildrenDrawer(1)"
             />
           </a-form-item>
         </a-col>
         <a-col :span="6">
-          <a-form-item label='初始经度'>
+          <a-form-item label='始发经度'>
             <a-input v-decorator="[
             'startLongitude'
             ]"/>
           </a-form-item>
         </a-col>
         <a-col :span="6">
-          <a-form-item label='初始纬度'>
+          <a-form-item label='始发纬度'>
             <a-input v-decorator="[
             'startLatitude'
             ]"/>
           </a-form-item>
         </a-col>
+        <a-divider orientation="left">
+          <span style="font-size: 13px">运输地</span>
+        </a-divider>
         <a-col :span="12">
-          <a-form-item label='运输地址'>
+          <a-form-item label='运输地'>
             <a-input-search
               v-decorator="[
-              'address'
+              'endAddress'
               ]"
               enter-button="选择"
-              @search="showChildrenDrawer"
+              @search="showChildrenDrawer(2)"
             />
           </a-form-item>
         </a-col>
@@ -63,21 +66,138 @@
             ]"/>
           </a-form-item>
         </a-col>
-      </a-row>
-      <br/>
-      <a-row :gutter="10">
         <a-divider orientation="left">
-          <span style="font-size: 13px">配送设置</span>
+          <span style="font-size: 13px">运输配置</span>
         </a-divider>
         <a-col :span="24">
+          <a-form-item label='车辆配置'>
+            <a-radio-group button-style="solid" v-decorator="['vehicleOptions']">
+              <a-radio-button value="1">
+                大型车
+              </a-radio-button>
+              <a-radio-button value="2">
+                中型车
+              </a-radio-button>
+              <a-radio-button value="3">
+                小型车
+              </a-radio-button>
+            </a-radio-group>
+          </a-form-item>
+        </a-col>
+        <a-col :span="24">
+          <a-form-item label='是否需要搬运工'>
+            <a-radio-group button-style="solid" v-decorator="['staffOptions']">
+              <a-radio-button value="0">
+                不需要
+              </a-radio-button>
+              <a-radio-button value="1">
+                一个
+              </a-radio-button>
+              <a-radio-button value="2">
+                两个
+              </a-radio-button>
+              <a-radio-button value="3">
+                三个
+              </a-radio-button>
+            </a-radio-group>
+          </a-form-item>
+        </a-col>
+        <a-col :span="24">
+          <a-form-item label='是否有电梯'>
+            <a-radio-group button-style="solid" v-decorator="['hasElevator']">
+              <a-radio-button value="0">
+                无
+              </a-radio-button>
+              <a-radio-button value="1">
+                有
+              </a-radio-button>
+            </a-radio-group>
+          </a-form-item>
+        </a-col>
+        <a-col :span="16">
+          <a-form-item label='备注'>
+            <a-textarea v-decorator="[
+            'remark'
+            ]" :rows="4"/>
+          </a-form-item>
+        </a-col>
+        <a-divider orientation="left">
+          <span style="font-size: 13px">图片</span>
+        </a-divider>
+        <a-col :span="24">
+          <a-form-item label='' v-bind="formItemLayout">
+            <a-upload
+              name="avatar"
+              action="http://127.0.0.1:9527/file/fileUpload/"
+              list-type="picture-card"
+              :file-list="fileList"
+              @preview="handlePreview"
+              @change="picHandleChange"
+            >
+              <div v-if="fileList.length < 8">
+                <a-icon type="plus" />
+                <div class="ant-upload-text">
+                  Upload
+                </div>
+              </div>
+            </a-upload>
+            <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
+              <img alt="example" style="width: 100%" :src="previewImage" />
+            </a-modal>
+          </a-form-item>
         </a-col>
       </a-row>
     </a-form>
+    <div v-if="nextFlag == 2" style="font-size: 13px;font-family: SimHei">
+      <a-row :gutter="10">
+        <a-divider orientation="left">
+          <span style="font-size: 13px">价格规则</span>
+        </a-divider>
+        <a-col :span="24">
+          【基础金额 + (距离 * 距离单价) + 配送车辆金额 + (配送员数量 * 配送员金额) + 无电梯费用】
+        </a-col>
+      </a-row>
+      <br/>
+      <a-row :gutter="10">
+        <a-col :span="6"><b>基础金额：</b>
+           {{ orderInfo.base }}元
+        </a-col>
+        <a-col :span="6"><b>距离：</b>
+          {{ orderInfo.distanceLength }}千米
+        </a-col>
+        <a-col :span="6"><b>距离单价：</b>
+          {{ orderInfo.distancePrice }}元
+        </a-col>
+      </a-row>
+      <br/>
+      <a-row :gutter="10">
+        <a-col :span="6"><b>配送车辆金额：</b>
+          {{ orderInfo.vehiclePrice }}元
+        </a-col>
+        <a-col :span="6"><b>配送员数量：</b>
+          {{ orderInfo.staffNum }}个
+        </a-col>
+        <a-col :span="6"><b>配送员金额：</b>
+          {{ orderInfo.staffPrice }}元
+        </a-col>
+        <a-col :span="6"><b>无电梯费用：</b>
+          {{ orderInfo.elevator }}元
+        </a-col>
+      </a-row>
+      <br/>
+      <br/>
+      <div style="text-align: center;margin-top: 180px">
+        <a-icon type="smile" theme="twoTone" style="font-size: 130px"/>
+        <p style="margin-top: 20px;font-size: 28px">您需要缴纳{{ orderInfo.amount }}元</p>
+      </div>
+    </div>
+    <drawerMap :childrenDrawerShow="childrenDrawer" @handlerClosed="handlerClosed"></drawerMap>
     <div class="drawer-bootom-button">
       <a-popconfirm title="确定放弃编辑？" @confirm="onClose" okText="确定" cancelText="取消">
         <a-button style="margin-right: .8rem">取消</a-button>
       </a-popconfirm>
-      <a-button @click="handleSubmit" type="primary" :loading="loading">提交</a-button>
+      <a-button @click="next" type="primary" v-if="nextFlag == 1">下一步</a-button>
+      <a-button @click="pay" type="primary" v-if="nextFlag == 2">支付</a-button>
     </div>
   </a-drawer>
 </template>
@@ -120,33 +240,6 @@ export default {
       },
       set: function () {
       }
-    },
-    columns () {
-      return [{
-        title: '药品名称',
-        dataIndex: 'drugName',
-        scopedSlots: {customRender: 'nameShow'}
-      }, {
-        title: '数量',
-        dataIndex: 'quantity',
-        scopedSlots: {customRender: 'reserveShow'}
-      }, {
-        title: '所属品牌',
-        dataIndex: 'brand',
-        scopedSlots: {customRender: 'brandShow'}
-      }, {
-        title: '药品类别',
-        dataIndex: 'classification',
-        scopedSlots: {customRender: 'typeIdShow'}
-      }, {
-        title: '剂型',
-        dataIndex: 'dosageForm',
-        scopedSlots: {customRender: 'dosageFormShow'}
-      }, {
-        title: '单价',
-        dataIndex: 'unitPrice',
-        scopedSlots: {customRender: 'priceShow'}
-      }]
     }
   },
   watch: {
@@ -167,19 +260,52 @@ export default {
       localPoint: {},
       stayAddress: '',
       childrenDrawer: false,
-      pharmacyList: [],
-      pharmacyInfo: null,
-      dataList: [],
-      drugList: [],
-      staffList: [],
-      staffCode: ''
+      flagType: 0,
+      nextFlag: 1,
+      orderInfo: null
     }
   },
   mounted () {
-    this.getPharmacy()
-    this.getStaff()
   },
   methods: {
+    pay (row) {
+      let data = { outTradeNo: this.orderInfo.orderCode, subject: this.orderInfo.orderCode, totalAmount: this.orderInfo.amount, body: '' }
+      this.$post('/cos/pay/alipay', data).then((r) => {
+        // console.log(r.data.msg)
+        // 添加之前先删除一下，如果单页面，页面不刷新，添加进去的内容会一直保留在页面中，二次调用form表单会出错
+        const divForm = document.getElementsByTagName('div')
+        if (divForm.length) {
+          document.body.removeChild(divForm[0])
+        }
+        const div = document.createElement('div')
+        div.innerHTML = r.data.msg // data就是接口返回的form 表单字符串
+        // console.log(div.innerHTML)
+        document.body.appendChild(div)
+        document.forms[0].setAttribute('target', '_self') // 新开窗口跳转
+        document.forms[0].submit()
+      })
+    },
+    next () {
+      // 获取图片List
+      let images = []
+      this.fileList.forEach(image => {
+        images.push(image.response)
+      })
+      this.form.validateFields((err, values) => {
+        if (!err) {
+          this.loading = true
+          values.userId = this.currentUser.userId
+          this.$post('/cos/order-info', {
+            ...values
+          }).then((r) => {
+            this.orderInfo = r.data
+            this.nextFlag = 2
+          }).catch(() => {
+            this.loading = false
+          })
+        }
+      })
+    },
     handleChange (value, record) {
       console.log(value)
       if (value) {
@@ -195,34 +321,6 @@ export default {
           }
         })
       }
-    },
-    pharmacyCheck (value) {
-      if (value) {
-        this.pharmacyList.forEach(e => {
-          if (e.id === value) {
-            this.getDrug(e.id)
-            this.pharmacyInfo = e
-          }
-        })
-      }
-    },
-    dataAdd () {
-      this.dataList.push({drugId: null, quantity: 1, brand: '', classification: '', dosageForm: '', unitPrice: ''})
-    },
-    getStaff (pharmacyId) {
-      this.$get(`/cos/staff-info/list`).then((r) => {
-        this.staffList = r.data.data
-      })
-    },
-    getDrug (pharmacyId) {
-      this.$get(`/cos/pharmacy-inventory/detail/pharmacy/${pharmacyId}`).then((r) => {
-        this.drugList = r.data.data
-      })
-    },
-    getPharmacy () {
-      this.$get('/cos/pharmacy-info/list').then((r) => {
-        this.pharmacyList = r.data.data
-      })
     },
     handlerClosed (localPoint) {
       this.childrenDrawer = false
@@ -241,15 +339,23 @@ export default {
               }
             }
             let obj = {}
-            obj['address'] = this.stayAddress
-            obj['longitude'] = localPoint.lng
-            obj['latitude'] = localPoint.lat
+            console.log(this.flagType)
+            if (this.flagType === 1) {
+              obj['startAddress'] = this.stayAddress
+              obj['startLongitude'] = localPoint.lng
+              obj['startLatitude'] = localPoint.lat
+            } else {
+              obj['endAddress'] = this.stayAddress
+              obj['endLongitude'] = localPoint.lng
+              obj['endLatitude'] = localPoint.lat
+            }
             this.form.setFieldsValue(obj)
           }
         })
       }
     },
-    showChildrenDrawer () {
+    showChildrenDrawer (value) {
+      this.flagType = value
       this.childrenDrawer = true
     },
     onChildrenDrawerClos () {
@@ -281,7 +387,8 @@ export default {
         values.orderDetailList = JSON.stringify(this.dataList)
         if (!err) {
           this.loading = true
-          this.$post('/cos/order-info/platform', {
+          values.userId = this.currentUser.userId
+          this.$post('/cos/order-info', {
             ...values
           }).then((r) => {
             this.reset()

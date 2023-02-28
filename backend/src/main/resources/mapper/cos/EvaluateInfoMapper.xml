@@ -11,7 +11,7 @@
         ei.images,
         ei.content,
         ei.schedule_score,
-        ei.service_soce,
+        ei.service_score,
         ei.price_score,
         ei.quality_score,
         ei.deliver_score,

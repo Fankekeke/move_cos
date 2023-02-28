@@ -57,7 +57,7 @@ public class EvaluateInfo implements Serializable {
     /**
      * 服务得分
      */
-    private BigDecimal serviceSocre;
+    private BigDecimal serviceScore;
 
     /**
      * 价格得分

@@ -1,9 +1,12 @@
 package cc.mrbird.febs.cos.controller;
 
 
+import cc.mrbird.febs.common.utils.MapUtils;
 import cc.mrbird.febs.common.utils.R;
 import cc.mrbird.febs.cos.entity.OrderInfo;
+import cc.mrbird.febs.cos.entity.UserInfo;
 import cc.mrbird.febs.cos.service.IOrderInfoService;
+import cc.mrbird.febs.cos.service.IUserInfoService;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,7 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -23,6 +29,8 @@ import java.util.List;
 public class OrderInfoController {
 
     private final IOrderInfoService orderInfoService;
+
+    private final IUserInfoService userInfoService;
 
     /**
      * 分页获取订单信息
@@ -132,10 +140,20 @@ public class OrderInfoController {
      */
     @PostMapping
     public R save(OrderInfo orderInfo) {
+        // 获取用户信息
+        UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, orderInfo.getUserId()));
+        if (userInfo != null) {
+            orderInfo.setUserId(userInfo.getId());
+        }
         orderInfo.setCode("OR-" + System.currentTimeMillis());
         orderInfo.setStatus(0);
         orderInfo.setCreateDate(DateUtil.formatDateTime(new Date()));
-        return R.ok(orderInfoService.save(orderInfo));
+        // 计算距离
+        BigDecimal distance = BigDecimal.valueOf(MapUtils.GetDistance(orderInfo.getStartLatitude().doubleValue(), orderInfo.getStartLongitude().doubleValue(), orderInfo.getEndLatitude().doubleValue(), orderInfo.getEndLongitude().doubleValue()));
+        orderInfo.setDistanceLength(distance.setScale(2, RoundingMode.HALF_UP));
+        LinkedHashMap<String, Object> result = orderInfoService.calculateAmountResult(orderInfo);
+        orderInfoService.save(orderInfo);
+        return R.ok(result);
     }
 
     /**

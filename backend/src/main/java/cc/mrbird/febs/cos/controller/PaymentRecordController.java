@@ -2,9 +2,14 @@ package cc.mrbird.febs.cos.controller;
 
 
 import cc.mrbird.febs.common.utils.R;
+import cc.mrbird.febs.cos.entity.OrderInfo;
 import cc.mrbird.febs.cos.entity.PaymentRecord;
+import cc.mrbird.febs.cos.entity.UserInfo;
+import cc.mrbird.febs.cos.service.IOrderInfoService;
 import cc.mrbird.febs.cos.service.IPaymentRecordService;
+import cc.mrbird.febs.cos.service.IUserInfoService;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +27,10 @@ import java.util.List;
 public class PaymentRecordController {
 
     private final IPaymentRecordService paymentRecordService;
+
+    private final IUserInfoService userInfoService;
+
+    private final IOrderInfoService orderInfoService;
 
     /**
      * 分页获取付款记录信息
@@ -54,6 +63,26 @@ public class PaymentRecordController {
     @GetMapping("/list")
     public R list() {
         return R.ok(paymentRecordService.list());
+    }
+
+    /**
+     * 新增付款记录信息
+     * @param userId
+     * @param orderCode
+     * @return
+     */
+    @GetMapping("/savePaymentRecord")
+    public R savePaymentRecord(String userId, String orderCode) {
+        PaymentRecord paymentRecord = new PaymentRecord();
+        // 获取用户信息
+        UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, userId));
+        // 订单信息
+        OrderInfo orderInfo = orderInfoService.getOne(Wrappers.<OrderInfo>lambdaQuery().eq(OrderInfo::getCode, orderCode));
+        paymentRecord.setUserCode(userInfo.getCode());
+        paymentRecord.setOrderCode(orderCode);
+        paymentRecord.setAmount(orderInfo.getAmount());
+        paymentRecord.setCreateDate(DateUtil.formatDateTime(new Date()));
+        return R.ok(paymentRecordService.save(paymentRecord));
     }
 
     /**

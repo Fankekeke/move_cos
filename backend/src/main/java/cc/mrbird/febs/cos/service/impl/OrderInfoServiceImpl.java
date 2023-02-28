@@ -138,8 +138,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         if (evaluateInfo.getScheduleScore() == null) {
             evaluateInfo.setScheduleScore(BigDecimal.valueOf(80));
         }
-        if (evaluateInfo.getServiceSocre() == null) {
-            evaluateInfo.setServiceSocre(BigDecimal.valueOf(80));
+        if (evaluateInfo.getServiceScore() == null) {
+            evaluateInfo.setServiceScore(BigDecimal.valueOf(80));
         }
         // 综合得分公式【(交付得分 + 价格得分 + 质量得分 + 准时得分 + 服务得分) / 5 】
         String expression = "";
@@ -149,7 +149,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         env.put("价格得分", evaluateInfo.getPriceScore());
         env.put("质量得分", evaluateInfo.getQualityScore());
         env.put("准时得分", evaluateInfo.getScheduleScore());
-        env.put("服务得分", evaluateInfo.getServiceSocre());
+        env.put("服务得分", evaluateInfo.getServiceScore());
         evaluateInfo.setOverScore(new BigDecimal(compiledExp.execute(env).toString()));
         return evaluateInfoService.save(evaluateInfo);
     }
@@ -181,7 +181,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             default:
         }
         // 价格公式
-        String expression = "";
+        String expression = "基础金额 + (距离 * 距离单价) + 配送车辆金额 + (配送员数量 * 配送员金额) + 无电梯费用";
         Expression compiledExp = AviatorEvaluator.compile(expression);
         Map<String, Object> env = new HashMap<>();
         env.put("基础金额", rulesMap.get("BASE_PRICE"));
@@ -192,6 +192,59 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         env.put("配送员金额", rulesMap.get("STAFF_PRICE"));
         env.put("无电梯费用", rulesMap.get("NOT_ELEVATOR"));
         return new BigDecimal(compiledExp.execute(env).toString());
+    }
+
+    /**
+     * 计算订单价格
+     *
+     * @param orderInfo 订单信息
+     * @return 结果
+     */
+    @Override
+    public LinkedHashMap<String, Object> calculateAmountResult(OrderInfo orderInfo) {
+        // 获取价格计算规则
+        List<PriceRules> priceRules = priceRulesService.list();
+        // 规则根据编号转MAP
+        Map<String, BigDecimal> rulesMap = priceRules.stream().collect(Collectors.toMap(PriceRules::getCode, PriceRules::getUnitPrice));
+        BigDecimal vehiclePrice = BigDecimal.ZERO;
+        switch (orderInfo.getVehicleOptions()) {
+            case 1:
+                vehiclePrice = rulesMap.get("LARGE_VEHICLE");
+                break;
+            case 2:
+                vehiclePrice = rulesMap.get("MEDIUM_VEHICLE");
+                break;
+            case 3:
+                vehiclePrice = rulesMap.get("SMALL_VEHICLE");
+                break;
+            default:
+        }
+        // 价格公式
+        String expression = "基础金额 + (距离 * 距离单价) + 配送车辆金额 + (配送员数量 * 配送员金额) + 无电梯费用";
+        Expression compiledExp = AviatorEvaluator.compile(expression);
+        Map<String, Object> env = new HashMap<>();
+        env.put("基础金额", rulesMap.get("BASE_PRICE"));
+        env.put("距离", orderInfo.getDistanceLength());
+        env.put("距离单价", rulesMap.get("DISTANCE_PRICE"));
+        env.put("配送车辆金额", vehiclePrice);
+        env.put("配送员数量", orderInfo.getStaffOptions() != null ? orderInfo.getStaffOptions() : 0);
+        env.put("配送员金额", rulesMap.get("STAFF_PRICE"));
+        env.put("无电梯费用", rulesMap.get("NOT_ELEVATOR"));
+        orderInfo.setAmount(new BigDecimal(compiledExp.execute(env).toString()));
+        LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>() {
+            {
+                put("base", rulesMap.get("BASE_PRICE"));
+                put("distanceLength", orderInfo.getDistanceLength());
+                put("distancePrice", rulesMap.get("DISTANCE_PRICE"));
+                put("staffNum", orderInfo.getStaffOptions() != null ? orderInfo.getStaffOptions() : 0);
+                put("staffPrice", rulesMap.get("STAFF_PRICE"));
+                put("elevator", rulesMap.get("NOT_ELEVATOR"));
+                put("amount", orderInfo.getAmount());
+                put("orderCode", orderInfo.getCode());
+            }
+        };
+        result.put("vehiclePrice", vehiclePrice);
+        return result;
     }
 
     /**
