@@ -194,7 +194,7 @@ export default {
         }
       }, {
         title: '订单状态',
-        dataIndex: 'orderStatus',
+        dataIndex: 'status',
         customRender: (text, row, index) => {
           switch (text) {
             case 0:

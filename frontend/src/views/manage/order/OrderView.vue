@@ -89,7 +89,7 @@
         </a-col>
       </a-row>
       <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;">
+      <a-row style="padding-left: 24px;padding-right: 24px;" v-if="userInfo !== null">
         <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">用户信息</span></a-col>
         <a-col :span="8"><b>客户编号：</b>
           {{ userInfo.code }}
@@ -146,26 +146,22 @@ export default {
       reserveInfo: null,
       durgList: [],
       logisticsList: [],
-      current: 0
+      current: 0,
+      userInfo: null
     }
   },
   watch: {
     orderShow: function (value) {
       if (value) {
-        this.dataInit(this.orderData.id)
-        this.current = this.orderData.orderStatus
+        this.dataInit(this.orderData.code)
+        this.current = this.orderData.status
       }
     }
   },
   methods: {
-    dataInit (orderId) {
-      // 药品信息
-      this.$get(`/cos/order-detail/detail/${orderId}`).then((r) => {
-        this.durgList = r.data.data
-      })
-      // 物流信息
-      this.$get(`/cos/logistics-info/order/${orderId}`).then((r) => {
-        this.logisticsList = r.data.data
+    dataInit (orderCode) {
+      this.$get(`/cos/order-info/detail/${orderCode}`).then((r) => {
+        this.userInfo = r.data.user
       })
     },
     imagesInit (images) {
