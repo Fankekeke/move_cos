@@ -144,7 +144,7 @@
                 </a-card>
                 <br/>
                 <a-row style="padding-left: 24px;padding-right: 24px;" v-if="communityData != null">
-                  <a-col><span style="font-size: 14px;font-weight: 650;color: #000c17">出租情况</span></a-col>
+                  <a-col><span style="font-size: 14px;font-weight: 650;color: #000c17">员工信息</span></a-col>
                 </a-row>
                 <br/>
                 <div style="text-align: center">
@@ -243,6 +243,13 @@ export default {
     }, 500)
   },
   methods: {
+    getLocal () {
+      // eslint-disable-next-line no-undef
+      let geolocation = new BMap.Geolocation()
+      geolocation.getCurrentPosition(r => {
+        this.nowPoint = r.point
+      }, {enableHighAccuracy: true})
+    },
     selectOrderDetail (orderCode) {
       this.$get(`/cos/order-info/detail/${orderCode}`).then((r) => {
         this.communityRent = r.data.data
