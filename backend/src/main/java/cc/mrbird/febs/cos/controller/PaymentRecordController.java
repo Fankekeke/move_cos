@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -72,12 +73,15 @@ public class PaymentRecordController {
      * @return
      */
     @GetMapping("/savePaymentRecord")
+    @Transactional(rollbackFor = Exception.class)
     public R savePaymentRecord(String userId, String orderCode) {
         PaymentRecord paymentRecord = new PaymentRecord();
         // 获取用户信息
         UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, userId));
         // 订单信息
         OrderInfo orderInfo = orderInfoService.getOne(Wrappers.<OrderInfo>lambdaQuery().eq(OrderInfo::getCode, orderCode));
+        orderInfo.setStatus(1);
+        orderInfoService.updateById(orderInfo);
         paymentRecord.setUserCode(userInfo.getCode());
         paymentRecord.setOrderCode(orderCode);
         paymentRecord.setAmount(orderInfo.getAmount());
