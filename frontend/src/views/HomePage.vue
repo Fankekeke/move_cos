@@ -22,16 +22,16 @@
               <a-col :span="4"></a-col>
               <a-col :span="4"></a-col>
               <a-col :span="4">
-                <head-info title="订单总量" :content="titleData.orderCode" :center="false" :bordered="false"/>
+                <head-info title="司机数量" :content="titleData.driverNum" :center="false" :bordered="false"/>
               </a-col>
               <a-col :span="4">
-                <head-info title="总收益" :content="titleData.orderPrice" :center="false" :bordered="false"/>
+                <head-info title="搬运工数量" :content="titleData.staffMoveNum" :center="false" :bordered="false"/>
               </a-col>
               <a-col :span="4">
-                <head-info title="店铺数量" :content="titleData.pharmacyNum" :center="false" :bordered="false"/>
+                <head-info title="总订单数" :content="titleData.orderNum" :center="false" :bordered="false"/>
               </a-col>
               <a-col :span="4">
-                <head-info title="员工数量" :content="titleData.staffNum" :center="false"/>
+                <head-info title="总收益" :content="titleData.amount" :center="false"/>
               </a-col>
             </a-row>
           </div>
@@ -61,10 +61,10 @@ export default {
   data () {
     return {
       titleData: {
-        orderCode: 0,
-        orderPrice: 0,
-        pharmacyNum: 0,
-        staffNum: 0
+        driverNum: 0,
+        staffMoveNum: 0,
+        orderNum: 0,
+        amount: 0
       },
       series: [],
       chartOptions: {

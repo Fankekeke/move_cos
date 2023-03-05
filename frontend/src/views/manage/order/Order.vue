@@ -71,8 +71,8 @@
     <order-audit
       @close="handleorderAuditViewClose"
       @success="handleorderAuditViewSuccess"
-      :orderAuditShow="orderAuditView.visiable"
-      :orderAuditData="orderAuditView.data">
+      :orderShow="orderAuditView.visiable"
+      :orderData="orderAuditView.data">
     </order-audit>
     <order-status
       @close="handleorderStatusViewClose"

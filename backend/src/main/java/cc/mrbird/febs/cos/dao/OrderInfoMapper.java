@@ -38,6 +38,20 @@ public interface OrderInfoMapper extends BaseMapper<OrderInfo> {
     List<LinkedHashMap<String, Object>> selectOrderAmountDays();
 
     /**
+     * 本月订单信息
+     *
+     * @return 结果
+     */
+    List<OrderInfo> selectOrderInfoByMonth();
+
+    /**
+     * 本年订单信息
+     *
+     * @return 结果
+     */
+    List<OrderInfo> selectOrderInfoByYear();
+
+    /**
      * 根据状态获取订单信息
      *
      * @param status 订单状态

@@ -326,6 +326,16 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         // 总收益
         List<PaymentRecord> paymentRecordList = paymentRecordService.list();
         BigDecimal amount = CollectionUtil.isEmpty(paymentRecordList) ? BigDecimal.ZERO : paymentRecordList.stream().map(PaymentRecord::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        List<OrderInfo> orderListMonth = baseMapper.selectOrderInfoByMonth();
+        List<OrderInfo> orderListYear = baseMapper.selectOrderInfoByYear();
+        // 本月订单量
+        Integer orderNumMonth = orderListMonth.size();
+        // 本月收益
+        BigDecimal orderAmountMonth = orderListMonth.stream().filter(e -> e.getStatus() != 0).map(OrderInfo::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        // 本年订单量
+        Integer orderNumYear = orderListYear.size();
+        // 本年收益
+        BigDecimal orderAmountYear = orderListYear.stream().filter(e -> e.getStatus() != 0).map(OrderInfo::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         // 近十天内订单数量统计
         List<LinkedHashMap<String, Object>> orderNumDays = baseMapper.selectOrderNumDays();
         // 近十天内订单收益统计
@@ -334,6 +344,11 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         List<BulletinInfo> bulletinInfoList = bulletinInfoService.list(Wrappers.<BulletinInfo>lambdaQuery().eq(BulletinInfo::getRackUp, 1));
         // 通知
         List<NotifyInfo> notifyInfoList = notifyInfoService.list(Wrappers.<NotifyInfo>lambdaQuery().eq(NotifyInfo::getUserCode, userCode));
+        result.put("orderNumMonth", orderNumMonth);
+        result.put("orderAmountMonth", orderAmountMonth);
+        result.put("orderNumYear", orderNumYear);
+        result.put("orderAmountYear", orderAmountYear);
+
         result.put("driverNum", driverNum);
         result.put("staffMoveNum", staffMoveNum);
         result.put("orderNum", orderNum);

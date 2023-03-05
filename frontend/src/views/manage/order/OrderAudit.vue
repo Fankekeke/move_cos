@@ -2,68 +2,112 @@
   <a-modal v-model="show" title="订单处理" @cancel="onClose" :width="800">
     <template slot="footer">
       <a-button key="back" @click="submit" type="primary">
-        发货
+        分配
       </a-button>
       <a-button @click="onClose">
         关闭
       </a-button>
     </template>
-    <div style="font-size: 13px;font-family: SimHei" v-if="orderAuditData !== null">
+    <div style="font-size: 13px;font-family: SimHei" v-if="orderData !== null">
+      <div style="padding-left: 24px;padding-right: 24px;margin-bottom: 50px;margin-top: 50px">
+        <a-steps :current="current" progress-dot size="small">
+          <a-step title="待付款" />
+          <a-step title="正在分配" />
+          <a-step title="运输中" />
+          <a-step title="运输完成" />
+        </a-steps>
+      </div>
       <a-row style="padding-left: 24px;padding-right: 24px;">
         <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">基础信息</span></a-col>
-        <a-col :span="8"><b>工单编号：</b>
-          {{ orderAuditData.code }}
+        <a-col :span="8"><b>订单编号：</b>
+          {{ orderData.code }}
         </a-col>
         <a-col :span="8"><b>客户名称：</b>
-          {{ orderAuditData.userName }}
+          {{ orderData.userName ? orderData.userName : '- -' }}
         </a-col>
         <a-col :span="8"><b>联系方式：</b>
-          {{ orderAuditData.phone }}
+          {{ orderData.phone ? orderData.phone : '- -' }}
         </a-col>
       </a-row>
       <br/>
       <a-row style="padding-left: 24px;padding-right: 24px;">
         <a-col :span="8"><b>当前状态：</b>
-          <span v-if="orderAuditData.status == 0">待付款</span>
-          <span v-if="orderAuditData.status == 1">已下单</span>
-          <span v-if="orderAuditData.status == 2">配送中</span>
-          <span v-if="orderAuditData.status == 3">已收货</span>
+          <span v-if="orderData.orderStatus == 0">待付款</span>
+          <span v-if="orderData.orderStatus == 1">正在分配</span>
+          <span v-if="orderData.orderStatus == 2">运输中</span>
+          <span v-if="orderData.orderStatus == 3">运输完成</span>
         </a-col>
         <a-col :span="8"><b>订单金额：</b>
-          {{ orderAuditData.totalCost }} 元
+          {{ orderData.amount }} 元
         </a-col>
         <a-col :span="8"><b>下单时间：</b>
-          {{ orderAuditData.createDate }}
+          {{ orderData.createDate }}
         </a-col>
       </a-row>
       <br/>
       <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">药店信息</span></a-col>
-        <a-col :span="8"><b>药店名称：</b>
-            {{ orderAuditData.pharmacyName }}
-          </a-col>
-        <a-col :span="8"><b>药店地址：</b>
-          {{ orderAuditData.address }}
+        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">运输配置</span></a-col>
+        <a-col :span="8"><b>是否需要车辆：</b>
+          <span v-if="orderData.vehicleOptions == null">不需要车辆</span>
+          <span v-if="orderData.vehicleOptions == 1">大型车</span>
+          <span v-if="orderData.vehicleOptions == 2">中型车</span>
+          <span v-if="orderData.vehicleOptions == 3">小型车</span>
         </a-col>
-        <a-col :span="8"><b>联系方式：</b>
-          {{ orderAuditData.pharmacyPhone }}
+        <a-col :span="8"><b>搬运工：</b>
+          {{ orderData.staffOptions }} 个
+        </a-col>
+        <a-col :span="8"><b>是否有电梯：</b>
+          <span v-if="orderData.hasElevator == 0" style="color: red">无电梯</span>
+          <span v-if="orderData.hasElevator == 1" style="color: red">有电梯</span>
         </a-col>
       </a-row>
       <br/>
       <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">购买药品信息</span></a-col>
-         <a-col :span="24">
-          <a-table :columns="columns" :data-source="durgList">
-          </a-table>
+        <a-col :span="8"><b>起始地址：</b>
+          {{ orderData.startAddress }}
+        </a-col>
+        <a-col :span="8"><b>运输地址：</b>
+          {{ orderData.endAddress }}
+        </a-col>
+        <a-col :span="8"><b>总距离：</b>
+          {{ orderData.distanceLength }} 千米
         </a-col>
       </a-row>
-      <a-divider orientation="left">
-        <span style="font-size: 12px;font-family: SimHei">订单发货</span>
-      </a-divider>
-      <a-row style="padding-left: 24px;padding-right: 24px;" :gutter="50">
+      <br/>
+      <a-row style="padding-left: 24px;padding-right: 24px;">
+        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">图册</span></a-col>
         <a-col :span="24">
-          <a-form-item label='物流备注' v-bind="formItemLayout">
-            <a-textarea :rows="6" v-model="auditData.remark"/>
+          <a-upload
+            name="avatar"
+            action="http://127.0.0.1:9527/file/fileUpload/"
+            list-type="picture-card"
+            :file-list="fileList"
+            @preview="handlePreview"
+            @change="picHandleChange"
+          >
+          </a-upload>
+          <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
+            <img alt="example" style="width: 100%" :src="previewImage" />
+          </a-modal>
+        </a-col>
+      </a-row>
+      <br/>
+      <a-row :gutter="15" style="padding-left: 24px;padding-right: 24px;">
+        <a-col :span="12">
+          <a-form-item label='选择司机'>
+            <a-select style="width: 100%" v-model="driverCheck">
+              <a-select-option :value="item.code" v-for="(item, index) in driverList" :key="index">{{ item.name }}</a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <br/>
+      <a-row :gutter="15" style="padding-left: 24px;padding-right: 24px;">
+        <a-col :span="12">
+          <a-form-item label='选择搬运工'>
+            <a-select style="width: 100%" mode="multiple" v-model="staffCheck">
+              <a-select-option :value="item.code" v-for="(item, index) in staffList" :key="index">{{ item.name }}</a-select-option>
+            </a-select>
           </a-form-item>
         </a-col>
       </a-row>
@@ -90,11 +134,11 @@ const formItemLayout = {
 export default {
   name: 'OrderAudit',
   props: {
-    orderAuditShow: {
+    orderShow: {
       type: Boolean,
       default: false
     },
-    orderAuditData: {
+    orderData: {
       type: Object
     }
   },
@@ -104,43 +148,16 @@ export default {
     }),
     show: {
       get: function () {
-        return this.orderAuditShow
+        return this.orderShow
       },
       set: function () {
       }
-    },
-    columns () {
-      return [{
-        title: '药品名称',
-        dataIndex: 'drugName'
-      }, {
-        title: '品牌',
-        dataIndex: 'brand'
-      }, {
-        title: '数量',
-        dataIndex: 'quantity'
-      }, {
-        title: '药品图片',
-        dataIndex: 'images',
-        customRender: (text, record, index) => {
-          if (!record.images) return <a-avatar shape="square" icon="user" />
-          return <a-popover>
-            <template slot="content">
-              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
-            </template>
-            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
-          </a-popover>
-        }
-      }, {
-        title: '单价',
-        dataIndex: 'unitPrice'
-      }]
     }
   },
   watch: {
-    'orderAuditShow': function (value) {
+    'orderShow': function (value) {
       if (value) {
-        this.selectOrderDetail(this.orderAuditData.id)
+        this.current = this.orderData.status
       }
     }
   },
@@ -155,19 +172,22 @@ export default {
         remark: ''
       },
       staffList: [],
-      durgList: []
+      driverCheck: [],
+      staffCheck: [],
+      driverList: [],
+      current: 0
     }
+  },
+  mounted () {
+    this.selectStaff()
   },
   methods: {
     moment,
-    selectOrderDetail (orderId) {
-      this.$get(`/cos/order-detail/detail/${orderId}`).then((r) => {
-        this.durgList = r.data.data
-      })
-    },
-    selectStaffByProduct (productId) {
-      this.$get(`/cos/staff-info/work/${productId}`).then((r) => {
-        this.staffList = r.data.data
+    selectStaff () {
+      this.$get(`/cos/staff-info/staff/type`).then((r) => {
+        console.log(JSON.stringify(r.data))
+        this.staffList = r.data.staff
+        this.driverList = r.data.driver
       })
     },
     onDateChange (date) {
@@ -197,7 +217,7 @@ export default {
     },
     submit () {
       this.$get(`/cos/order-info/ship`, {
-        'orderId': this.orderAuditData.id,
+        'orderId': this.orderData.id,
         'remark': this.auditData.remark
       }).then((r) => {
         this.cleanData()

@@ -5,12 +5,14 @@ import cc.mrbird.febs.common.utils.R;
 import cc.mrbird.febs.cos.entity.StaffInfo;
 import cc.mrbird.febs.cos.service.IStaffInfoService;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -26,13 +28,26 @@ public class StaffInfoController {
     /**
      * 分页获取员工信息
      *
-     * @param page         分页对象
+     * @param page      分页对象
      * @param staffInfo 员工信息
      * @return 结果
      */
     @GetMapping("/page")
     public R page(Page<StaffInfo> page, StaffInfo staffInfo) {
         return R.ok(staffInfoService.selectStaffPage(page, staffInfo));
+    }
+
+    /**
+     * 获取员工信息
+     *
+     * @return 结果
+     */
+    @GetMapping("/staff/type")
+    public R selectStaffByType() {
+        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+        result.put("driver", staffInfoService.list(Wrappers.<StaffInfo>lambdaQuery().eq(StaffInfo::getType, 1).eq(StaffInfo::getStatus, 1)));
+        result.put("staff", staffInfoService.list(Wrappers.<StaffInfo>lambdaQuery().eq(StaffInfo::getType, 2).eq(StaffInfo::getStatus, 1)));
+        return R.ok(result);
     }
 
     /**
@@ -64,6 +79,7 @@ public class StaffInfoController {
      */
     @PostMapping
     public R save(StaffInfo staffInfo) {
+        staffInfo.setCode("ST-" + System.currentTimeMillis());
         staffInfo.setCreateDate(DateUtil.formatDateTime(new Date()));
         return R.ok(staffInfoService.save(staffInfo));
     }

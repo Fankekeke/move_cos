@@ -10,7 +10,7 @@
                   <a-col :span="24" style="font-size: 13px;margin-bottom: 8px;font-family: SimHei">本月订单量</a-col>
                   <a-col :span="4"><a-icon type="arrow-up" style="font-size: 30px;margin-top: 3px"/></a-col>
                   <a-col :span="18" style="font-size: 28px;font-weight: 500;font-family: SimHei">
-                    {{ titleData.monthOrderNum }}
+                    {{ titleData.orderNumMonth }}
                     <span style="font-size: 20px;margin-top: 3px">单</span>
                   </a-col>
                 </a-row>
@@ -22,7 +22,7 @@
                   <a-col :span="24" style="font-size: 13px;margin-bottom: 8px;font-family: SimHei">本月收益</a-col>
                   <a-col :span="4"><a-icon type="arrow-up" style="font-size: 30px;margin-top: 3px"/></a-col>
                   <a-col :span="18" style="font-size: 28px;font-weight: 500;font-family: SimHei">
-                    {{ titleData.monthOrderPrice }}
+                    {{ titleData.orderAmountMonth }}
                     <span style="font-size: 20px;margin-top: 3px">元</span>
                   </a-col>
                 </a-row>
@@ -34,7 +34,7 @@
                   <a-col :span="24" style="font-size: 13px;margin-bottom: 8px;font-family: SimHei">本年订单量</a-col>
                   <a-col :span="4"><a-icon type="arrow-up" style="font-size: 30px;margin-top: 3px"/></a-col>
                   <a-col :span="18" style="font-size: 28px;font-weight: 500;font-family: SimHei">
-                    {{ titleData.yearOrderNum }}
+                    {{ titleData.orderNumYear }}
                     <span style="font-size: 20px;margin-top: 3px">单</span>
                   </a-col>
                 </a-row>
@@ -46,7 +46,7 @@
                   <a-col :span="24" style="font-size: 13px;margin-bottom: 8px;font-family: SimHei">本年收益</a-col>
                   <a-col :span="4"><a-icon type="arrow-up" style="font-size: 30px;margin-top: 3px"/></a-col>
                   <a-col :span="18" style="font-size: 28px;font-weight: 500;font-family: SimHei">
-                    {{ titleData.yearOrderPrice }}
+                    {{ titleData.orderAmountYear }}
                     <span style="font-size: 20px;margin-top: 3px">元</span>
                   </a-col>
                 </a-row>
@@ -71,12 +71,12 @@
       </a-col>
     </a-row>
     <a-row style="margin-top: 15px">
-      <a-col :span="9">
-        <a-card hoverable :bordered="false" style="width: 100%">
-          <a-skeleton active v-if="loading" />
-          <apexchart v-if="!loading" type="donut" height="270" :options="chartOptions2" :series="series2"></apexchart>
-        </a-card>
-      </a-col>
+<!--      <a-col :span="9">-->
+<!--        <a-card hoverable :bordered="false" style="width: 100%">-->
+<!--          <a-skeleton active v-if="loading" />-->
+<!--          <apexchart v-if="!loading" type="donut" height="270" :options="chartOptions2" :series="series2"></apexchart>-->
+<!--        </a-card>-->
+<!--      </a-col>-->
       <a-col :span="15">
         <a-card hoverable :loading="loading" :bordered="false" title="公告信息" style="margin-top: 15px">
           <div style="padding: 0 22px">
@@ -120,10 +120,10 @@ export default {
       },
       bulletinList: [],
       titleData: {
-        orderCode: 0,
-        orderPrice: 0,
-        pharmacyNum: 0,
-        staffNum: 0
+        orderNumMonth: 0,
+        orderAmountMonth: 0,
+        orderNumYear: 0,
+        orderAmountYear: 0
       },
       loading: false,
       series: [{
@@ -269,37 +269,26 @@ export default {
   },
   methods: {
     selectHomeData () {
-      this.$get('/cos/pharmacy-info/home/data').then((r) => {
-        let titleData = { orderCode: r.data.orderCode, orderPrice: r.data.orderPrice, pharmacyNum: r.data.pharmacyNum, staffNum: r.data.staffNum }
+      this.$get('/cos/order-info/homeData', { userCode: this.user.userId }).then((r) => {
+        let titleData = { driverNum: r.data.driverNum, staffMoveNum: r.data.staffMoveNum, orderNum: r.data.orderNum, amount: r.data.amount }
         this.$emit('setTitle', titleData)
-        this.titleData.monthOrderNum = r.data.monthOrderNum
-        this.titleData.monthOrderPrice = r.data.monthOrderPrice
-        this.titleData.yearOrderNum = r.data.yearOrderNum
-        this.titleData.yearOrderPrice = r.data.yearOrderPrice
-        this.bulletinList = r.data.bulletin
+        this.titleData.orderNumMonth = r.data.orderNumMonth
+        this.titleData.orderAmountMonth = r.data.orderAmountMonth
+        this.titleData.orderNumYear = r.data.orderNumYear
+        this.titleData.orderAmountYear = r.data.orderAmountYear
+        this.bulletinList = r.data.bulletinInfoList
         let values = []
-        if (r.data.orderNumWithinDays !== null && r.data.orderNumWithinDays.length !== 0) {
+        if (r.data.orderNumDays !== null && r.data.orderNumDays.length !== 0) {
           if (this.chartOptions1.xaxis.categories.length === 0) {
-            console.log(r.data.orderNumWithinDays)
-            this.chartOptions1.xaxis.categories = Array.from(r.data.orderNumWithinDays, ({days}) => days)
+            console.log(r.data.orderNumDays)
+            this.chartOptions1.xaxis.categories = Array.from(r.data.orderNumDays, ({days}) => days)
           }
-          let itemData = { name: '订单数', data: Array.from(r.data.orderNumWithinDays, ({count}) => count) }
+          let itemData = { name: '订单数', data: Array.from(r.data.orderNumDays, ({count}) => count) }
           values.push(itemData)
           this.series1 = values
         }
-        this.series[0].data = Array.from(r.data.orderPriceWithinDays, ({price}) => price)
-        this.chartOptions.xaxis.categories = Array.from(r.data.orderPriceWithinDays, ({days}) => days)
-        if (r.data.orderDrugType.length !== 0) {
-          let series = []
-          let chartOptions = []
-          r.data.orderDrugType.forEach(e => {
-            series.push(e.count)
-            chartOptions.push(e.name)
-          })
-          this.series2 = series
-          this.chartOptions2.labels = chartOptions
-          console.log(this.chartOptions2.labels)
-        }
+        this.series[0].data = Array.from(r.data.orderAmountDays, ({price}) => price)
+        this.chartOptions.xaxis.categories = Array.from(r.data.orderAmountDays, ({days}) => days)
       })
     }
   }
