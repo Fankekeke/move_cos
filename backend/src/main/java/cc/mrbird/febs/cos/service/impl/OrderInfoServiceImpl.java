@@ -114,8 +114,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         if (StrUtil.isNotEmpty(staffCodeStr)) {
             orderDistributeService.setOrderStaff(staffCodeStr, orderCode);
         }
-        orderInfo.setStatus(2);
-        return this.updateById(orderInfo);
+        return this.audit(orderCode, 2);
     }
 
     /**

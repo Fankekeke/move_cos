@@ -36,12 +36,18 @@ public class PaymentRecordController {
     /**
      * 分页获取付款记录信息
      *
-     * @param page         分页对象
+     * @param page          分页对象
      * @param paymentRecord 付款记录信息
      * @return 结果
      */
     @GetMapping("/page")
     public R page(Page<PaymentRecord> page, PaymentRecord paymentRecord) {
+        if (paymentRecord.getUserId() != null) {
+            UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, paymentRecord.getUserId()));
+            if (userInfo != null) {
+                paymentRecord.setUserCode(userInfo.getCode());
+            }
+        }
         return R.ok(paymentRecordService.selectPaymentPage(page, paymentRecord));
     }
 
@@ -68,9 +74,10 @@ public class PaymentRecordController {
 
     /**
      * 新增付款记录信息
-     * @param userId
-     * @param orderCode
-     * @return
+     *
+     * @param userId    用户ID
+     * @param orderCode 订单编号
+     * @return 结果
      */
     @GetMapping("/savePaymentRecord")
     @Transactional(rollbackFor = Exception.class)
@@ -80,8 +87,7 @@ public class PaymentRecordController {
         UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, userId));
         // 订单信息
         OrderInfo orderInfo = orderInfoService.getOne(Wrappers.<OrderInfo>lambdaQuery().eq(OrderInfo::getCode, orderCode));
-        orderInfo.setStatus(1);
-        orderInfoService.updateById(orderInfo);
+        orderInfoService.audit(orderCode, 1);
         paymentRecord.setUserCode(userInfo.getCode());
         paymentRecord.setOrderCode(orderCode);
         paymentRecord.setAmount(orderInfo.getAmount());

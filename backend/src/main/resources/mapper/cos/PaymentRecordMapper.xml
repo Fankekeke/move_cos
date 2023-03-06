@@ -29,6 +29,9 @@
         <if test="paymentRecord.orderCode != null and paymentRecord.orderCode != ''">
             AND pr.order_code = #{paymentRecord.orderCode}
         </if>
+        <if test="paymentRecord.userCode != null and paymentRecord.userCode != ''">
+            AND pr.user_code = #{paymentRecord.userCode}
+        </if>
         order by
         pr.create_date desc
     </select>

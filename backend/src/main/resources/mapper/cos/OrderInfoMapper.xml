@@ -40,6 +40,9 @@
         <if test="orderInfo.status != null">
             AND oi.status = #{orderInfo.status}
         </if>
+        <if test="orderInfo.userId != null">
+            AND oi.user_id = #{orderInfo.userId}
+        </if>
         order by
         oi.create_date desc
     </select>
