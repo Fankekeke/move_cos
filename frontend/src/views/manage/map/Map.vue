@@ -135,7 +135,7 @@
                 </a-row>
                 <br/>
                 <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;" v-if="communityData != null">
+                <a-row style="padding-left: 24px;padding-right: 24px;" v-if="evaluateInfo != null">
                   <a-col><span style="font-size: 14px;font-weight: 650;color: #000c17">订单评价</span></a-col>
                 </a-row>
                 <a-card v-if="echartsShow" hoverable :bordered="false" style="width: 100%">

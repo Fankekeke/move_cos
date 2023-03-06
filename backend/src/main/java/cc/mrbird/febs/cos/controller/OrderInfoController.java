@@ -88,6 +88,17 @@ public class OrderInfoController {
     }
 
     /**
+     * 根据用户ID查询未完成订单
+     *
+     * @param userId 用户ID
+     * @return 结果
+     */
+    @GetMapping("/selectOrderByUserId/{userId}")
+    public R selectOrderByUserId(@PathVariable("userId") Integer userId) {
+        return R.ok(orderInfoService.selectOrderByUserId(userId));
+    }
+
+    /**
      * 计算订单价格
      *
      * @param orderInfo 订单信息

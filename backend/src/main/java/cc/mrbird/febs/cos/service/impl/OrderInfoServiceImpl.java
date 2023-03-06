@@ -292,6 +292,22 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     /**
+     * 根据用户ID查询未完成订单
+     *
+     * @param userId 用户ID
+     * @return 结果
+     */
+    @Override
+    public List<OrderInfo> selectOrderByUserId(Integer userId) {
+        // 查询用户信息
+        UserInfo userInfo = userInfoMapper.selectOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, userId));
+        if (userInfo == null) {
+            return Collections.emptyList();
+        }
+        return this.list(Wrappers.<OrderInfo>lambdaQuery().ne(OrderInfo::getStatus, 3).eq(OrderInfo::getUserId, userInfo.getId()));
+    }
+
+    /**
      * 查询待分配和未完成订单
      *
      * @return 结果

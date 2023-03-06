@@ -77,6 +77,14 @@ public interface IOrderInfoService extends IService<OrderInfo> {
     LinkedHashMap<String, Object> selectDetailByCode(String orderCode);
 
     /**
+     * 根据用户ID查询未完成订单
+     *
+     * @param userId 用户ID
+     * @return 结果
+     */
+    List<OrderInfo> selectOrderByUserId(Integer userId);
+
+    /**
      * 查询待分配和未完成订单
      *
      * @return 结果
