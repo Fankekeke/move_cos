@@ -175,6 +175,9 @@ export default {
   },
   data () {
     return {
+      staffList: [],
+      evaluateInfo: null,
+      userInfo: null,
       communityRent: 0,
       rentShow: false,
       orderData: null,
@@ -252,7 +255,9 @@ export default {
     },
     selectOrderDetail (orderCode) {
       this.$get(`/cos/order-info/detail/${orderCode}`).then((r) => {
-        this.communityRent = r.data.data
+        this.userInfo = r.data.user
+        this.evaluateInfo = r.data.evaluate
+        this.staffList = r.data.staff
       })
     }
   }
