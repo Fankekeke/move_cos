@@ -153,20 +153,15 @@ export default {
   watch: {
     orderShow: function (value) {
       if (value) {
-        this.dataInit(this.orderData.id)
-        this.current = this.orderData.orderStatus
+        this.dataInit(this.orderData.code)
+        this.current = this.orderData.status
       }
     }
   },
   methods: {
-    dataInit (orderId) {
-      // 药品信息
-      this.$get(`/cos/order-detail/detail/${orderId}`).then((r) => {
-        this.durgList = r.data.data
-      })
-      // 物流信息
-      this.$get(`/cos/logistics-info/order/${orderId}`).then((r) => {
-        this.logisticsList = r.data.data
+    dataInit (orderCode) {
+      this.$get(`/cos/order-info/detail/${orderCode}`).then((r) => {
+        this.userInfo = r.data.user
       })
     },
     imagesInit (images) {

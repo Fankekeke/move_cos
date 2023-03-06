@@ -17,6 +17,7 @@ import com.googlecode.aviator.Expression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -98,6 +99,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean checkOrder(String orderCode, String driverCode, String staffCodeStr) throws Exception {
         // 获取订单信息
         OrderInfo orderInfo = this.getOne(Wrappers.<OrderInfo>lambdaQuery().eq(OrderInfo::getCode, orderCode));
@@ -124,6 +126,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
      */
     @Override
     public boolean orderEvaluate(EvaluateInfo evaluateInfo) {
+        // 设置用户编号
+        OrderInfo orderInfo = this.getOne(Wrappers.<OrderInfo>lambdaQuery().eq(OrderInfo::getCode, evaluateInfo.getOrderCode()));
+        UserInfo userInfo = userInfoMapper.selectById(orderInfo.getUserId());
+        if (userInfo != null) {
+            evaluateInfo.setUserCode(userInfo.getCode());
+        }
         evaluateInfo.setCreateDate(DateUtil.formatDateTime(new Date()));
         // 计算综合得分
         if (evaluateInfo.getDeliverScore() == null) {
@@ -142,7 +150,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             evaluateInfo.setServiceScore(BigDecimal.valueOf(80));
         }
         // 综合得分公式【(交付得分 + 价格得分 + 质量得分 + 准时得分 + 服务得分) / 5 】
-        String expression = "";
+        String expression = "(交付得分 + 价格得分 + 质量得分 + 准时得分 + 服务得分) / 5";
         Expression compiledExp = AviatorEvaluator.compile(expression);
         Map<String, Object> env = new HashMap<>();
         env.put("交付得分", evaluateInfo.getDeliverScore());

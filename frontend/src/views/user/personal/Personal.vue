@@ -27,7 +27,7 @@
               </a-form-item>
             </a-col>
             <a-col :span="24">
-              <a-form-item label='专家头像' v-bind="formItemLayout">
+              <a-form-item label='头像' v-bind="formItemLayout">
                 <a-upload
                   name="avatar"
                   action="http://127.0.0.1:9527/file/fileUpload/"
@@ -93,11 +93,11 @@ export default {
     }
   },
   mounted () {
-    this.getExpertInfo(this.currentUser.userCode)
+    this.getExpertInfo(this.currentUser.userId)
   },
   methods: {
-    getExpertInfo (expertCode) {
-      this.$get(`/cos/expert-info/detail/code/${expertCode}`).then((r) => {
+    getExpertInfo (userId) {
+      this.$get(`/cos/user-info/detail/${userId}`).then((r) => {
         this.expertInfo = r.data.data
         console.log(this.expertInfo)
         this.setFormValues(this.expertInfo)
@@ -161,7 +161,7 @@ export default {
           }).then((r) => {
             this.$message.success('更新成功')
             this.loading = false
-            this.getExpertInfo(this.currentUser.userCode)
+            this.getExpertInfo(this.currentUser.userId)
           }).catch(() => {
             this.loading = false
           })

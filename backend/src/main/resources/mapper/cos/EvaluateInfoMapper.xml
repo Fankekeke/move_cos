@@ -37,6 +37,9 @@
         <if test="evaluateInfo.orderCode != null and evaluateInfo.orderCode != ''">
             AND ei.order_code LIKE CONCAT('%',#{evaluateInfo.orderCode},'%')
         </if>
+        <if test="evaluateInfo.userCode != null and evaluateInfo.userCode != ''">
+            AND ei.user_code = #{evaluateInfo.userCode}
+        </if>
         order by
         ei.create_date desc
     </select>

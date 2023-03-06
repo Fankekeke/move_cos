@@ -3,6 +3,7 @@ package cc.mrbird.febs.cos.controller;
 
 import cc.mrbird.febs.common.utils.MapUtils;
 import cc.mrbird.febs.common.utils.R;
+import cc.mrbird.febs.cos.entity.EvaluateInfo;
 import cc.mrbird.febs.cos.entity.OrderInfo;
 import cc.mrbird.febs.cos.entity.UserInfo;
 import cc.mrbird.febs.cos.service.IOrderInfoService;
@@ -42,6 +43,17 @@ public class OrderInfoController {
     @GetMapping("/page")
     public R page(Page<OrderInfo> page, OrderInfo orderInfo) {
         return R.ok(orderInfoService.selectOrderPage(page, orderInfo));
+    }
+
+    /**
+     * 添加评价信息
+     *
+     * @param evaluateInfo 评价信息
+     * @return 结果
+     */
+    @PostMapping("/orderEvaluate")
+    public R orderEvaluate(EvaluateInfo evaluateInfo) {
+        return R.ok(orderInfoService.orderEvaluate(evaluateInfo));
     }
 
     /**

@@ -1,22 +1,14 @@
 <template>
-  <a-modal v-model="show" title="订单处理" @cancel="onClose" :width="800">
+  <a-modal v-model="show" title="订单评价" @cancel="onClose" :width="800">
     <template slot="footer">
-      <a-button key="back" @click="submit" type="primary">
-        分配
+      <a-button key="back" @click="onClose">
+        取消
       </a-button>
-      <a-button @click="onClose">
-        关闭
+      <a-button key="submit" type="primary" :loading="loading" @click="handleSubmit">
+        提交
       </a-button>
     </template>
     <div style="font-size: 13px;font-family: SimHei" v-if="orderData !== null">
-      <div style="padding-left: 24px;padding-right: 24px;margin-bottom: 50px;margin-top: 50px">
-        <a-steps :current="current" progress-dot size="small">
-          <a-step title="待付款" />
-          <a-step title="正在分配" />
-          <a-step title="运输中" />
-          <a-step title="运输完成" />
-        </a-steps>
-      </div>
       <a-row style="padding-left: 24px;padding-right: 24px;">
         <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">基础信息</span></a-col>
         <a-col :span="8"><b>订单编号：</b>
@@ -74,49 +66,85 @@
         </a-col>
       </a-row>
       <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">图册</span></a-col>
-        <a-col :span="24">
-          <a-upload
-            name="avatar"
-            action="http://127.0.0.1:9527/file/fileUpload/"
-            list-type="picture-card"
-            :file-list="fileList"
-            @preview="handlePreview"
-            @change="picHandleChange"
-          >
-          </a-upload>
-          <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
-            <img alt="example" style="width: 100%" :src="previewImage" />
-          </a-modal>
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row :gutter="15" style="padding-left: 24px;padding-right: 24px;">
-        <a-col :span="12">
-          <a-form-item label='选择司机'>
-            <a-select style="width: 100%" v-model="driverCheck">
-              <a-select-option :value="item.code" v-for="(item, index) in driverList" :key="index">{{ item.name }}</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row :gutter="15" style="padding-left: 24px;padding-right: 24px;">
-        <a-col :span="12">
-          <a-form-item label='选择搬运工'>
-            <a-select style="width: 100%" mode="multiple" v-model="staffCheck">
-              <a-select-option :value="item.code" v-for="(item, index) in staffList" :key="index">{{ item.name }}</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-      </a-row>
     </div>
+    <a-form :form="form" layout="vertical">
+      <a-row :gutter="20">
+        <a-col :span="6">
+          <a-form-item label='准时得分' v-bind="formItemLayout">
+            <a-input-number v-decorator="[
+            'scheduleScore',
+            { rules: [{ required: true, message: '请输入准时得分!' }] }
+            ]" :min="1" :max="100" :step="0.1"/>
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
+          <a-form-item label='服务得分' v-bind="formItemLayout">
+            <a-input-number v-decorator="[
+            'serviceScore',
+            { rules: [{ required: true, message: '请输入服务得分!' }] }
+            ]" :min="1" :max="100" :step="0.1"/>
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
+          <a-form-item label='价格得分' v-bind="formItemLayout">
+            <a-input-number v-decorator="[
+            'priceScore',
+            { rules: [{ required: true, message: '请输入价格得分!' }] }
+            ]" :min="1" :max="100" :step="0.1"/>
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
+          <a-form-item label='质量得分' v-bind="formItemLayout">
+            <a-input-number v-decorator="[
+            'qualityScore',
+            { rules: [{ required: true, message: '请输入质量得分!' }] }
+            ]" :min="1" :max="100" :step="0.1"/>
+          </a-form-item>
+        </a-col>
+         <a-col :span="6">
+          <a-form-item label='交付得分' v-bind="formItemLayout">
+            <a-input-number v-decorator="[
+            'deliverScore',
+            { rules: [{ required: true, message: '请输入交付得分!' }] }
+            ]" :min="1" :max="100" :step="0.1"/>
+          </a-form-item>
+        </a-col>
+        <a-col :span="24">
+          <a-form-item label='评价内容' v-bind="formItemLayout">
+            <a-textarea :rows="6" v-decorator="[
+            'content',
+             { rules: [{ required: true, message: '请输入评价内容!' }] }
+            ]"/>
+          </a-form-item>
+        </a-col>
+        <a-col :span="24">
+          <a-form-item label='图册' v-bind="formItemLayout">
+            <a-upload
+              name="avatar"
+              action="http://127.0.0.1:9527/file/fileUpload/"
+              list-type="picture-card"
+              :file-list="fileList"
+              @preview="handlePreview"
+              @change="picHandleChange"
+            >
+              <div v-if="fileList.length < 8">
+                <a-icon type="plus" />
+                <div class="ant-upload-text">
+                  Upload
+                </div>
+              </div>
+            </a-upload>
+            <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
+              <img alt="example" style="width: 100%" :src="previewImage" />
+            </a-modal>
+          </a-form-item>
+        </a-col>
+      </a-row>
+    </a-form>
   </a-modal>
 </template>
 
 <script>
-import moment from 'moment'
 import {mapState} from 'vuex'
 function getBase64 (file) {
   return new Promise((resolve, reject) => {
@@ -126,16 +154,14 @@ function getBase64 (file) {
     reader.onerror = error => reject(error)
   })
 }
-moment.locale('zh-cn')
 const formItemLayout = {
   labelCol: { span: 24 },
   wrapperCol: { span: 24 }
 }
 export default {
-  name: 'OrderAudit',
+  name: 'orderEvaluate',
   props: {
-    orderShow: {
-      type: Boolean,
+    orderEvaluateVisiable: {
       default: false
     },
     orderData: {
@@ -148,51 +174,23 @@ export default {
     }),
     show: {
       get: function () {
-        return this.orderShow
+        return this.orderEvaluateVisiable
       },
       set: function () {
-      }
-    }
-  },
-  watch: {
-    'orderShow': function (value) {
-      if (value) {
-        this.current = this.orderData.status
       }
     }
   },
   data () {
     return {
       formItemLayout,
+      form: this.$form.createForm(this),
       loading: false,
       fileList: [],
       previewVisible: false,
-      previewImage: '',
-      auditData: {
-        remark: ''
-      },
-      staffList: [],
-      driverCheck: [],
-      staffCheck: [],
-      driverList: [],
-      current: 0
+      previewImage: ''
     }
   },
-  mounted () {
-    this.selectStaff()
-  },
   methods: {
-    moment,
-    selectStaff () {
-      this.$get(`/cos/staff-info/staff/type`).then((r) => {
-        console.log(JSON.stringify(r.data))
-        this.staffList = r.data.staff
-        this.driverList = r.data.driver
-      })
-    },
-    onDateChange (date) {
-      this.auditData.reserveDate = moment(date).format('YYYY-MM-DD')
-    },
     handleCancel () {
       this.previewVisible = false
     },
@@ -206,36 +204,35 @@ export default {
     picHandleChange ({ fileList }) {
       this.fileList = fileList
     },
-    imagesInit (images) {
-      if (images !== null && images !== '') {
-        let imageList = []
-        images.split(',').forEach((image, index) => {
-          imageList.push({uid: index, name: image, status: 'done', url: 'http://127.0.0.1:9527/imagesWeb/' + image})
-        })
-        this.fileList = imageList
-      }
-    },
-    submit () {
-      if (this.driverCheck.length !== 0) {
-        this.$get(`/cos/order-info/checkOrder`, {
-        'orderCode': this.orderData.id,
-        'driverCode': this.driverCheck.join(','),
-        'staffCodeStr': this.staffCheck.join(',')
-        }).then((r) => {
-          this.cleanData()
-          this.$emit('success')
-        })
-      } else {
-        this.$message.warn('请选择司机')
-      }
+    reset () {
+      this.loading = false
+      this.form.resetFields()
     },
     onClose () {
-      this.cleanData()
+      this.reset()
       this.$emit('close')
     },
-    cleanData () {
-      this.staffCheck = []
-      this.driverCheck = []
+    handleSubmit () {
+      // 获取图片List
+      let images = []
+      this.fileList.forEach(image => {
+        images.push(image.response)
+      })
+      this.form.validateFields((err, values) => {
+        values.images = images.length > 0 ? images.join(',') : null
+        values.orderCode = this.orderData.code
+        if (!err) {
+          this.loading = true
+          this.$post('/cos/order-info/orderEvaluate', {
+            ...values
+          }).then((r) => {
+            this.reset()
+            this.$emit('success')
+          }).catch(() => {
+            this.loading = false
+          })
+        }
+      })
     }
   }
 }

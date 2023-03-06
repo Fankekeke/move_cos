@@ -7,6 +7,7 @@ import java.io.Serializable;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.sun.org.apache.xml.internal.security.Init;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -86,4 +87,7 @@ public class EvaluateInfo implements Serializable {
 
     @TableField(exist = false)
     private String userName;
+
+    @TableField(exist = false)
+    private Integer userId;
 }

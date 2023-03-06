@@ -1,198 +1,419 @@
 <template>
-  <a-modal v-model="show" title="订单详情" @cancel="onClose" :width="900">
-    <template slot="footer">
-      <a-button key="back" @click="onClose" type="danger">
-        关闭
-      </a-button>
-    </template>
-    <div style="font-size: 13px;font-family: SimHei" v-if="orderData !== null">
-      <div style="padding-left: 24px;padding-right: 24px;margin-bottom: 50px;margin-top: 50px">
-        <a-steps :current="current" progress-dot size="small">
-          <a-step title="待付款" />
-          <a-step title="正在分配" />
-          <a-step title="运输中" />
-          <a-step title="运输完成" />
-        </a-steps>
-      </div>
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">基础信息</span></a-col>
-        <a-col :span="8"><b>订单编号：</b>
-          {{ orderData.code }}
-        </a-col>
-        <a-col :span="8"><b>客户名称：</b>
-          {{ orderData.userName ? orderData.userName : '- -' }}
-        </a-col>
-        <a-col :span="8"><b>联系方式：</b>
-          {{ orderData.phone ? orderData.phone : '- -' }}
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col :span="8"><b>当前状态：</b>
-          <span v-if="orderData.orderStatus == 0">待付款</span>
-          <span v-if="orderData.orderStatus == 1">正在分配</span>
-          <span v-if="orderData.orderStatus == 2">运输中</span>
-          <span v-if="orderData.orderStatus == 3">运输完成</span>
-        </a-col>
-        <a-col :span="8"><b>订单金额：</b>
-          {{ orderData.amount }} 元
-        </a-col>
-        <a-col :span="8"><b>下单时间：</b>
-          {{ orderData.createDate }}
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">运输配置</span></a-col>
-        <a-col :span="8"><b>是否需要车辆：</b>
-          <span v-if="orderData.vehicleOptions == null">不需要车辆</span>
-          <span v-if="orderData.vehicleOptions == 1">大型车</span>
-          <span v-if="orderData.vehicleOptions == 2">中型车</span>
-          <span v-if="orderData.vehicleOptions == 3">小型车</span>
-        </a-col>
-        <a-col :span="8"><b>搬运工：</b>
-          {{ orderData.staffOptions }} 个
-        </a-col>
-        <a-col :span="8"><b>是否有电梯：</b>
-          <span v-if="orderData.hasElevator == 0" style="color: red">无电梯</span>
-          <span v-if="orderData.hasElevator == 1" style="color: red">有电梯</span>
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col :span="8"><b>起始地址：</b>
-          {{ orderData.startAddress }}
-        </a-col>
-        <a-col :span="8"><b>运输地址：</b>
-          {{ orderData.endAddress }}
-        </a-col>
-        <a-col :span="8"><b>总距离：</b>
-          {{ orderData.distanceLength }} 千米
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">图册</span></a-col>
-        <a-col :span="24">
-          <a-upload
-            name="avatar"
-            action="http://127.0.0.1:9527/file/fileUpload/"
-            list-type="picture-card"
-            :file-list="fileList"
-            @preview="handlePreview"
-            @change="picHandleChange"
-          >
-          </a-upload>
-          <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
-            <img alt="example" style="width: 100%" :src="previewImage" />
-          </a-modal>
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;" v-if="userInfo !== null">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">用户信息</span></a-col>
-        <a-col :span="8"><b>客户编号：</b>
-          {{ userInfo.code }}
-        </a-col>
-        <a-col :span="8"><b>客户名称：</b>
-          {{ userInfo.name }}
-        </a-col>
-        <a-col :span="8"><b>联系方式：</b>
-          {{ userInfo.phone }}
-        </a-col>
-      </a-row>
+  <a-card :bordered="false" class="card-area">
+    <div :class="advanced ? 'search' : null">
+      <!-- 搜索区域 -->
+      <a-form layout="horizontal">
+        <a-row :gutter="15">
+          <div :class="advanced ? null: 'fold'">
+            <a-col :md="6" :sm="24">
+              <a-form-item
+                label="订单编号"
+                :labelCol="{span: 5}"
+                :wrapperCol="{span: 18, offset: 1}">
+                <a-input v-model="queryParams.code"/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item
+                label="订单状态"
+                :labelCol="{span: 5}"
+                :wrapperCol="{span: 18, offset: 1}">
+                <a-input v-model="queryParams.pharmacyName"/>
+              </a-form-item>
+            </a-col>
+          </div>
+          <span style="float: right; margin-top: 3px;">
+            <a-button type="primary" @click="search">查询</a-button>
+            <a-button style="margin-left: 8px" @click="reset">重置</a-button>
+          </span>
+        </a-row>
+      </a-form>
     </div>
-  </a-modal>
+    <div>
+      <div class="operator">
+        <a-button type="primary" ghost @click="add">添加订单</a-button>
+        <a-button @click="batchDelete">删除</a-button>
+      </div>
+      <!-- 表格区域 -->
+      <a-table ref="TableInfo"
+               :columns="columns"
+               :rowKey="record => record.id"
+               :dataSource="dataSource"
+               :pagination="pagination"
+               :loading="loading"
+               :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
+               :scroll="{ x: 900 }"
+               @change="handleTableChange">
+        <template slot="titleShow" slot-scope="text, record">
+          <template>
+            <a-tooltip>
+              <template slot="title">
+                {{ record.title }}
+              </template>
+              {{ record.title.slice(0, 8) }} ...
+            </a-tooltip>
+          </template>
+        </template>
+        <template slot="operation" slot-scope="text, record">
+          <a-icon type="file-search" @click="orderViewOpen(record)" title="详 情"></a-icon>
+          <a-icon v-if="record.status == 3" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="handleorderEvaluateOpen(record)" title="评 价" style="margin-left: 15px"></a-icon>
+        </template>
+      </a-table>
+    </div>
+    <order-view
+      @close="handleorderViewClose"
+      :orderShow="orderView.visiable"
+      :orderData="orderView.data">
+    </order-view>
+    <order-add
+      @close="handleorderAddClose"
+      @success="handleorderAddSuccess"
+      :orderAddShow="orderAdd.visiable">
+    </order-add>
+    <order-evaluate
+      @close="handleorderEvaluateClose"
+      @success="handleorderEvaluateSuccess"
+      :orderEvaluateShow="orderEvaluate.visiable"
+      :orderData="orderEvaluate.data">
+    </order-evaluate>
+  </a-card>
 </template>
 
 <script>
+import RangeDate from '@/components/datetime/RangeDate'
+import {mapState} from 'vuex'
 import moment from 'moment'
+import OrderAdd from './OrderAdd'
+import OrderEvaluate from './OrderEvaluate'
+import OrderView from './OrderView'
 moment.locale('zh-cn')
-function getBase64 (file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = error => reject(error)
-  })
-}
+
 export default {
-  name: 'orderView',
-  props: {
-    orderShow: {
-      type: Boolean,
-      default: false
-    },
-    orderData: {
-      type: Object
+  name: 'order',
+  components: {OrderView, OrderEvaluate, RangeDate, OrderAdd},
+  data () {
+    return {
+      advanced: false,
+      orderAdd: {
+        visiable: false
+      },
+      orderEdit: {
+        visiable: false
+      },
+      orderView: {
+        visiable: false,
+        data: null
+      },
+      orderEvaluate: {
+        visiable: false,
+        data: null
+      },
+      queryParams: {},
+      filteredInfo: null,
+      sortedInfo: null,
+      paginationInfo: null,
+      dataSource: [],
+      selectedRowKeys: [],
+      loading: false,
+      pagination: {
+        pageSizeOptions: ['10', '20', '30', '40', '100'],
+        defaultCurrent: 1,
+        defaultPageSize: 10,
+        showQuickJumper: true,
+        showSizeChanger: true,
+        showTotal: (total, range) => `显示 ${range[0]} ~ ${range[1]} 条记录，共 ${total} 条记录`
+      },
+      orderAuditView: {
+        visiable: false,
+        data: null
+      },
+      userList: []
     }
   },
   computed: {
-    show: {
-      get: function () {
-        return this.orderShow
-      },
-      set: function () {
-      }
+    ...mapState({
+      currentUser: state => state.account.user
+    }),
+    columns () {
+      return [{
+        title: '订单编号',
+        dataIndex: 'code'
+      }, {
+        title: '客户名称',
+        dataIndex: 'userName',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return <a-tag>平台内下单</a-tag>
+          }
+        }
+      }, {
+        title: '头像',
+        dataIndex: 'userImages',
+        customRender: (text, record, index) => {
+          if (!record.images) return <a-avatar shape="square" icon="user" />
+          return <a-popover>
+            <template slot="content">
+              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
+            </template>
+            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
+          </a-popover>
+        }
+      }, {
+        title: '联系方式',
+        dataIndex: 'phone',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '订单总额',
+        dataIndex: 'amount',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text + '元'
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '初始地址',
+        dataIndex: 'startAddress',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '运货地址',
+        dataIndex: 'endAddress',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '订单状态',
+        dataIndex: 'status',
+        customRender: (text, row, index) => {
+          switch (text) {
+            case 0:
+              return <a-tag>待付款</a-tag>
+            case 1:
+              return <a-tag>正在分配</a-tag>
+            case 2:
+              return <a-tag>运输中</a-tag>
+            case 3:
+              return <a-tag>运输完成</a-tag>
+            default:
+              return '- -'
+          }
+        }
+      }, {
+        title: '下单时间',
+        dataIndex: 'createDate',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '操作',
+        dataIndex: 'operation',
+        scopedSlots: {customRender: 'operation'}
+      }]
     }
   },
-  data () {
-    return {
-      loading: false,
-      fileList: [],
-      previewVisible: false,
-      previewImage: '',
-      repairInfo: null,
-      reserveInfo: null,
-      durgList: [],
-      logisticsList: [],
-      current: 0,
-      userInfo: null
-    }
-  },
-  watch: {
-    orderShow: function (value) {
-      if (value) {
-        this.dataInit(this.orderData.code)
-        this.current = this.orderData.status
-      }
-    }
+  mounted () {
+    this.fetch()
   },
   methods: {
-    dataInit (orderCode) {
-      this.$get(`/cos/order-info/detail/${orderCode}`).then((r) => {
-        this.userInfo = r.data.user
+    orderStatusOpen (row) {
+      this.orderStatusView.data = row
+      this.orderStatusView.visiable = true
+    },
+    orderAuditOpen (row) {
+      this.orderAuditView.data = row
+      this.orderAuditView.visiable = true
+    },
+    orderViewOpen (row) {
+      this.orderView.data = row
+      this.orderView.visiable = true
+    },
+    handleorderViewClose () {
+      this.orderView.visiable = false
+    },
+    handleorderStatusViewClose () {
+      this.orderStatusView.visiable = false
+    },
+    handleorderStatusViewSuccess () {
+      this.orderStatusView.visiable = false
+      this.$message.success('修改成功')
+      this.fetch()
+    },
+    handleorderAuditViewClose () {
+      this.orderAuditView.visiable = false
+    },
+    handleorderAuditViewSuccess () {
+      this.orderAuditView.visiable = false
+      this.$message.success('分配成功')
+      this.fetch()
+    },
+    onSelectChange (selectedRowKeys) {
+      this.selectedRowKeys = selectedRowKeys
+    },
+    toggleAdvanced () {
+      this.advanced = !this.advanced
+    },
+    add () {
+      this.orderAdd.visiable = true
+    },
+    handleorderAddClose () {
+      this.orderAdd.visiable = false
+    },
+    handleorderEvaluateOpen (row) {
+      this.orderEvaluate.data = row
+      this.orderEvaluate.visiable = true
+    },
+    handleorderEvaluateClose () {
+      this.orderEvaluate.visiable = false
+    },
+    handleorderAddSuccess () {
+      this.orderAdd.visiable = false
+      this.$message.success('添加平台订单成功')
+      this.search()
+    },
+    handleorderEvaluateSuccess () {
+      this.orderEvaluate.visiable = false
+      this.$message.success('订单评价成功')
+      this.search()
+    },
+    edit (record) {
+      this.$refs.orderEdit.setFormValues(record)
+      this.orderEdit.visiable = true
+    },
+    handleorderEditClose () {
+      this.orderEdit.visiable = false
+    },
+    handleorderEditSuccess () {
+      this.orderEdit.visiable = false
+      this.$message.success('修改产品成功')
+      this.search()
+    },
+    handleDeptChange (value) {
+      this.queryParams.deptId = value || ''
+    },
+    batchDelete () {
+      if (!this.selectedRowKeys.length) {
+        this.$message.warning('请选择需要删除的记录')
+        return
+      }
+      let that = this
+      this.$confirm({
+        title: '确定删除所选中的记录?',
+        content: '当您点击确定按钮后，这些记录将会被彻底删除',
+        centered: true,
+        onOk () {
+          let ids = that.selectedRowKeys.join(',')
+          that.$delete('/cos/order-info/' + ids).then(() => {
+            that.$message.success('删除成功')
+            that.selectedRowKeys = []
+            that.search()
+          })
+        },
+        onCancel () {
+          that.selectedRowKeys = []
+        }
       })
     },
-    imagesInit (images) {
-      if (images !== null && images !== '') {
-        let imageList = []
-        images.split(',').forEach((image, index) => {
-          imageList.push({uid: index, name: image, status: 'done', url: 'http://127.0.0.1:9527/imagesWeb/' + image})
-        })
-        this.fileList = imageList
+    search () {
+      let {sortedInfo, filteredInfo} = this
+      let sortField, sortOrder
+      // 获取当前列的排序和列的过滤规则
+      if (sortedInfo) {
+        sortField = sortedInfo.field
+        sortOrder = sortedInfo.order
       }
+      this.fetch({
+        sortField: sortField,
+        sortOrder: sortOrder,
+        ...this.queryParams,
+        ...filteredInfo
+      })
     },
-    handleCancel () {
-      this.previewVisible = false
-    },
-    async handlePreview (file) {
-      if (!file.url && !file.preview) {
-        file.preview = await getBase64(file.originFileObj)
+    reset () {
+      // 取消选中
+      this.selectedRowKeys = []
+      // 重置分页
+      this.$refs.TableInfo.pagination.current = this.pagination.defaultCurrent
+      if (this.paginationInfo) {
+        this.paginationInfo.current = this.pagination.defaultCurrent
+        this.paginationInfo.pageSize = this.pagination.defaultPageSize
       }
-      this.previewImage = file.url || file.preview
-      this.previewVisible = true
+      // 重置列过滤器规则
+      this.filteredInfo = null
+      // 重置列排序规则
+      this.sortedInfo = null
+      // 重置查询参数
+      this.queryParams = {}
+      this.fetch()
     },
-    picHandleChange ({ fileList }) {
-      this.fileList = fileList
+    handleTableChange (pagination, filters, sorter) {
+      // 将这三个参数赋值给Vue data，用于后续使用
+      this.paginationInfo = pagination
+      this.filteredInfo = filters
+      this.sortedInfo = sorter
+
+      this.fetch({
+        sortField: sorter.field,
+        sortOrder: sorter.order,
+        ...this.queryParams,
+        ...filters
+      })
     },
-    onClose () {
-      this.$emit('close')
+    fetch (params = {}) {
+      // 显示loading
+      this.loading = true
+      if (this.paginationInfo) {
+        // 如果分页信息不为空，则设置表格当前第几页，每页条数，并设置查询分页参数
+        this.$refs.TableInfo.pagination.current = this.paginationInfo.current
+        this.$refs.TableInfo.pagination.pageSize = this.paginationInfo.pageSize
+        params.size = this.paginationInfo.pageSize
+        params.current = this.paginationInfo.current
+      } else {
+        // 如果分页信息为空，则设置为默认值
+        params.size = this.pagination.defaultPageSize
+        params.current = this.pagination.defaultCurrent
+      }
+      if (params.status === undefined) {
+        delete params.status
+      }
+      this.$get('/cos/order-info/page', {
+        ...params
+      }).then((r) => {
+        let data = r.data.data
+        const pagination = {...this.pagination}
+        pagination.total = data.total
+        this.dataSource = data.records
+        this.pagination = pagination
+        // 数据加载完毕，关闭loading
+        this.loading = false
+      })
     }
-  }
+  },
+  watch: {}
 }
 </script>
-
-<style scoped>
-
+<style lang="less" scoped>
+@import "../../../../static/less/Common";
 </style>
