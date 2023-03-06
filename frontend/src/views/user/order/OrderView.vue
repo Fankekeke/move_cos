@@ -154,6 +154,7 @@ export default {
     orderShow: function (value) {
       if (value) {
         this.dataInit(this.orderData.code)
+        this.imagesInit(this.orderData.images)
         this.current = this.orderData.status
       }
     }

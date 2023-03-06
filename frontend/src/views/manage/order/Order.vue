@@ -65,6 +65,7 @@
         <template slot="operation" slot-scope="text, record">
           <a-icon type="file-search" @click="orderViewOpen(record)" title="详 情"></a-icon>
           <a-icon v-if="record.status == 1" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="orderAuditOpen(record)" title="修 改" style="margin-left: 15px"></a-icon>
+          <a-icon type="cluster" @click="orderMapOpen(record)" title="地 图" style="margin-left: 15px"></a-icon>
         </template>
       </a-table>
     </div>
@@ -90,6 +91,11 @@
       @success="handleorderAddSuccess"
       :orderAddShow="orderAdd.visiable">
     </order-add>
+    <MapView
+      @close="handleorderMapViewClose"
+      :orderShow="orderMapView.visiable"
+      :orderData="orderMapView.data">
+    </MapView>
   </a-card>
 </template>
 
@@ -101,11 +107,12 @@ import OrderAdd from './OrderAdd'
 import OrderAudit from './OrderAudit'
 import OrderView from './OrderView'
 import OrderStatus from './OrderStatus.vue'
+import MapView from '../map/Map.vue'
 moment.locale('zh-cn')
 
 export default {
   name: 'order',
-  components: {OrderView, OrderAudit, RangeDate, OrderStatus, OrderAdd},
+  components: {OrderView, OrderAudit, RangeDate, OrderStatus, OrderAdd, MapView},
   data () {
     return {
       advanced: false,
@@ -114,6 +121,10 @@ export default {
       },
       orderEdit: {
         visiable: false
+      },
+      orderMapView: {
+        visiable: false,
+        data: null
       },
       orderView: {
         visiable: false,
@@ -167,12 +178,12 @@ export default {
         title: '头像',
         dataIndex: 'userImages',
         customRender: (text, record, index) => {
-          if (!record.images) return <a-avatar shape="square" icon="user" />
+          if (!record.userImages) return <a-avatar shape="square" icon="user" />
           return <a-popover>
             <template slot="content">
-              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
+              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.userImages.split(',')[0] } />
             </template>
-            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
+            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.userImages.split(',')[0] } />
           </a-popover>
         }
       }, {
@@ -253,6 +264,13 @@ export default {
     this.fetch()
   },
   methods: {
+    orderMapOpen (row) {
+      this.orderMapView.data = row
+      this.orderMapView.visiable = true
+    },
+    handleorderMapViewClose () {
+      this.orderMapView.visiable = false
+    },
     orderStatusOpen (row) {
       this.orderStatusView.data = row
       this.orderStatusView.visiable = true

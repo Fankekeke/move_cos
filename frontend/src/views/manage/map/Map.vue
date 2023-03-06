@@ -3,8 +3,8 @@
     placement="right"
     width="100%"
     :closable="false"
-    :visible="visible"
-    @close="handleOk"
+    :visible="orderShow"
+    destroyOnClose
     wrapClassName="aa"
     :getContainer="false"
   >
@@ -16,7 +16,7 @@
         </a-col>
         <a-col :span="6" style="height: 100%;box-shadow: 3px 3px 3px rgba(0, 0, 0, .2);color:#fff">
           <div>
-            <div v-if="rentShow" class="scenicInfo" style="height: 100vh; overflow-y: auto;padding-left: 5px;overflow-x: hidden">
+            <div class="scenicInfo" style="height: 100vh; overflow-y: auto;padding-left: 5px;overflow-x: hidden">
               <a-carousel autoplay style="height: 250px;" v-if="orderData.images !== undefined && orderData.images !== ''">
                 <div style="width: 100%;height: 250px" v-for="(item, index) in orderData.images.split(',')" :key="index">
                   <img :src="'http://127.0.0.1:9527/imagesWeb/'+item" style="width: 100%;height: 100%">
@@ -33,15 +33,15 @@
                   </a-col>
                 </a-row>
                 <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;">
+                <a-row style="padding-left: 24px;padding-right: 24px;" v-if="userInfo != null">
                   <a-col :span="8"><b>客户编号：</b>
-                    {{ userData.code !== null ? userData.code : '- -' }}
+                    {{ userInfo.code !== null ? userInfo.code : '- -' }}
                   </a-col>
                   <a-col :span="8"><b>客户名称：</b>
-                    {{ userData.name !== null ? userData.name : '- -' }}
+                    {{ userInfo.name !== null ? userInfo.name : '- -' }}
                   </a-col>
                   <a-col :span="8"><b>联系方式：</b>
-                    {{ userData.phone !== null ? userData.phone : '- -' }}
+                    {{ userInfo.phone !== null ? userInfo.phone : '- -' }}
                   </a-col>
                 </a-row>
                 <br/>
@@ -180,7 +180,6 @@ export default {
       userInfo: null,
       communityRent: 0,
       rentShow: false,
-      orderData: null,
       communityShow: false,
       communityData: null,
       checkedList: ['Apple', 'Orange'],
@@ -191,7 +190,6 @@ export default {
       rentList: [],
       communityList: [],
       community: null,
-      orderData: null,
       nowPoint: null,
       roadData: [],
       checkLoading: false,
@@ -238,14 +236,19 @@ export default {
       }
     }
   },
-  mounted () {
-    this.visible = true
-    setTimeout(() => {
-      baiduMap.initMap('areas')
-      this.getLocal()
-    }, 500)
+  watch: {
+    'orderShow': function (value) {
+      if (value) {
+        setTimeout(() => {
+          baiduMap.initMap('areas')
+          this.getLocal()
+        }, 200)
+      }
+    }
   },
   methods: {
+    home () {
+    },
     getLocal () {
       // eslint-disable-next-line no-undef
       let geolocation = new BMap.Geolocation()

@@ -218,9 +218,9 @@ export default {
     submit () {
       if (this.driverCheck.length !== 0) {
         this.$get(`/cos/order-info/checkOrder`, {
-        'orderCode': this.orderData.id,
-        'driverCode': this.driverCheck.join(','),
-        'staffCodeStr': this.staffCheck.join(',')
+          'orderCode': this.orderData.code,
+          'driverCode': this.driverCheck,
+          'staffCodeStr': this.staffCheck.join(',')
         }).then((r) => {
           this.cleanData()
           this.$emit('success')
