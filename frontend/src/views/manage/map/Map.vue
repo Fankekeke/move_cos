@@ -22,9 +22,7 @@
                   <img :src="'http://127.0.0.1:9527/imagesWeb/'+item" style="width: 100%;height: 100%">
                 </div>
               </a-carousel>
-              <a-card :title="orderData.startAddress" :bordered="false">
-                <a slot="extra" @click="rentNavigation" style="margin-right: 10px">导航</a>
-                <a slot="extra" @click="rentBack">返回</a>
+              <a-card :title="orderData.startAddress +' ~ '+ orderData.endAddress" :bordered="false">
               </a-card>
               <div style="font-size: 12px;font-family: SimHei;color: #404040;margin-top: 15px">
                 <a-row style="padding-left: 24px;padding-right: 24px;">
@@ -50,10 +48,10 @@
                     {{ orderData.amount !== null ? orderData.amount : '- -' }}元
                   </a-col>
                   <a-col :span="8"><b>订单状态：</b>
-                    <span v-if="orderData.status === 0">未支付</span>
-                    <span v-if="orderData.roomType === 1">正在分配</span>
-                    <span v-if="orderData.roomType === 1">运输中</span>
-                    <span v-if="orderData.roomType === 1">运输完成</span>
+                    <span v-if="orderData.status == 0">未支付</span>
+                    <span v-if="orderData.status == 1">正在分配</span>
+                    <span v-if="orderData.status == 2">运输中</span>
+                    <span v-if="orderData.status == 3">运输完成</span>
                   </a-col>
                 </a-row>
                 <br/>
@@ -69,7 +67,7 @@
                   </a-col>
                   <a-col :span="8"><b>是否有电梯：</b>
                     <span v-if="orderData.hasElevator == 0" style="color: red">无电梯</span>
-                    <span v-if="orderData.hasElevator == 1" style="color: red">有电梯</span>
+                    <span v-if="orderData.hasElevator == 1" style="color: green">有电梯</span>
                   </a-col>
                 </a-row>
                 <br/>
@@ -143,13 +141,24 @@
                   <apexchart v-if="!checkLoading" type="bar" height="180" :options="chartOptions" :series="series"></apexchart>
                 </a-card>
                 <br/>
-                <a-row style="padding-left: 24px;padding-right: 24px;" v-if="communityData != null">
+                <a-row style="padding-left: 24px;padding-right: 24px;" v-if="staffList.length !== 0">
                   <a-col><span style="font-size: 14px;font-weight: 650;color: #000c17">员工信息</span></a-col>
                 </a-row>
                 <br/>
+                <a-row style="padding-left: 24px;padding-right: 24px;" v-if="staffList.length !== 0">
+                  <a-col :span="6" v-for="(item, index) in staffList" :key="index">
+                    <a-avatar shape="square" :size="95" :src="'http://127.0.0.1:9527/imagesWeb/' + item.images.split(',')[0]" icon="user" />
+                    <p>{{ item.name }}【{{ item.type == 1 ? '搬运工' : '驾驶员' }}】</p>
+                  </a-col>
+                </a-row>
+                <br/>
+                <br/>
                 <div style="text-align: center">
                   <a-icon type="smile" theme="twoTone" style="font-size: 75px"/>
-                  <p style="margin-top: 25px;font-size: 20px;font-family: SimHei">当前小区共有套{{ communityRent }}房源!</p>
+                  <p style="margin-top: 25px;font-size: 20px;font-family: SimHei" v-if="orderData.status == 0">未支付</p>
+                  <p style="margin-top: 25px;font-size: 20px;font-family: SimHei" v-if="orderData.status == 1">正在分配</p>
+                  <p style="margin-top: 25px;font-size: 20px;font-family: SimHei" v-if="orderData.status == 2">运输中</p>
+                  <p style="margin-top: 25px;font-size: 20px;font-family: SimHei" v-if="orderData.status == 3">运输完成</p>
                 </div>
               </div>
             </div>
@@ -239,6 +248,7 @@ export default {
   watch: {
     'orderShow': function (value) {
       if (value) {
+        this.selectOrderDetail(this.orderData.code)
         setTimeout(() => {
           baiduMap.initMap('areas')
           this.getLocal()
@@ -266,11 +276,7 @@ export default {
           key = '医疗'
           break
       }
-      if (this.rentShow) {
-        baiduMap.searchNear(this.rentData.longitude, this.rentData.latitude, key)
-      } else {
-        baiduMap.searchNear(this.communityData.longitude, this.communityData.latitude, key)
-      }
+      baiduMap.searchNear(this.orderData.startLongitude, this.orderData.endLatitude, key)
     },
     getLocal () {
       // eslint-disable-next-line no-undef
@@ -284,6 +290,7 @@ export default {
         this.userInfo = r.data.user
         this.evaluateInfo = r.data.evaluate
         this.staffList = r.data.staff
+        console.log(JSON.stringify(this.staffList))
       })
     }
   }

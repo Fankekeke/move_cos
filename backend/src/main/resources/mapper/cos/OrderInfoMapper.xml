@@ -24,11 +24,15 @@
         oi.amount,
         ui.name as userName,
         ui.phone,
-        ui.images as userImages
+        ui.images as userImages,
+        oi.driver_code,
+        oi.has_elevator,
+        ei.id as evaluate_id
         from
         order_info oi
         left join user_info ui on
         (ui.id = oi.user_id)
+        left join evaluate_info ei on (ei.order_code = oi.code)
         where
         1 = 1
         <if test="orderInfo.userName != null and orderInfo.userName != ''">

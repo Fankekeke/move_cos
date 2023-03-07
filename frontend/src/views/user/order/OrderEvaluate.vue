@@ -67,11 +67,11 @@
       </a-row>
       <br/>
     </div>
-    <a-form :form="form" layout="vertical">
+    <a-form :form="form" layout="vertical" style="padding-left: 24px;padding-right: 24px;">
       <a-row :gutter="20">
         <a-col :span="6">
           <a-form-item label='准时得分' v-bind="formItemLayout">
-            <a-input-number v-decorator="[
+            <a-input-number style="width: 100%" v-decorator="[
             'scheduleScore',
             { rules: [{ required: true, message: '请输入准时得分!' }] }
             ]" :min="1" :max="100" :step="0.1"/>
@@ -79,7 +79,7 @@
         </a-col>
         <a-col :span="6">
           <a-form-item label='服务得分' v-bind="formItemLayout">
-            <a-input-number v-decorator="[
+            <a-input-number style="width: 100%" v-decorator="[
             'serviceScore',
             { rules: [{ required: true, message: '请输入服务得分!' }] }
             ]" :min="1" :max="100" :step="0.1"/>
@@ -87,7 +87,7 @@
         </a-col>
         <a-col :span="6">
           <a-form-item label='价格得分' v-bind="formItemLayout">
-            <a-input-number v-decorator="[
+            <a-input-number style="width: 100%" v-decorator="[
             'priceScore',
             { rules: [{ required: true, message: '请输入价格得分!' }] }
             ]" :min="1" :max="100" :step="0.1"/>
@@ -95,7 +95,7 @@
         </a-col>
         <a-col :span="6">
           <a-form-item label='质量得分' v-bind="formItemLayout">
-            <a-input-number v-decorator="[
+            <a-input-number style="width: 100%" v-decorator="[
             'qualityScore',
             { rules: [{ required: true, message: '请输入质量得分!' }] }
             ]" :min="1" :max="100" :step="0.1"/>
@@ -103,7 +103,7 @@
         </a-col>
          <a-col :span="6">
           <a-form-item label='交付得分' v-bind="formItemLayout">
-            <a-input-number v-decorator="[
+            <a-input-number style="width: 100%" v-decorator="[
             'deliverScore',
             { rules: [{ required: true, message: '请输入交付得分!' }] }
             ]" :min="1" :max="100" :step="0.1"/>
