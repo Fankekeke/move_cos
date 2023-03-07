@@ -56,6 +56,7 @@
         </template>
         <template slot="operation" slot-scope="text, record">
           <a-icon type="file-search" @click="orderViewOpen(record)" title="详 情"></a-icon>
+          <a-icon v-if="record.status == 2" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="orderComplete(record)" title="订单完成" style="margin-left: 15px"></a-icon>
           <a-icon v-if="record.status == 3" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="handleorderEvaluateOpen(record)" title="评 价" style="margin-left: 15px"></a-icon>
         </template>
       </a-table>
@@ -238,6 +239,15 @@ export default {
     this.fetch()
   },
   methods: {
+    orderComplete (row) {
+      this.$get(`/cos/order-info/audit`, {
+        'orderCode': row.code,
+        'status': 3
+      }).then((r) => {
+        this.$message.success('订单完成')
+        this.fetch()
+      })
+    },
     orderStatusOpen (row) {
       this.orderStatusView.data = row
       this.orderStatusView.visiable = true

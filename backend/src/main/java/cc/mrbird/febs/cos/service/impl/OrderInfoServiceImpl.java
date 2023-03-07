@@ -110,6 +110,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         if (StrUtil.isNotEmpty(driverCode) && orderInfo.getVehicleOptions() != null) {
             orderInfo.setDriverCode(driverCode);
         }
+        this.updateById(orderInfo);
         // 绑定搬运工
         if (StrUtil.isNotEmpty(staffCodeStr)) {
             orderDistributeService.setOrderStaff(staffCodeStr, orderCode);
