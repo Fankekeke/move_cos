@@ -248,6 +248,29 @@ export default {
   },
   methods: {
     home () {
+      this.$emit('close')
+    },
+    gisOnChange (e) {
+      let key = ''
+      switch (e.target.value) {
+        case '1':
+          key = '公交站'
+          break
+        case '2':
+          key = '餐饮'
+          break
+        case '3':
+          key = '教育'
+          break
+        case '4':
+          key = '医疗'
+          break
+      }
+      if (this.rentShow) {
+        baiduMap.searchNear(this.rentData.longitude, this.rentData.latitude, key)
+      } else {
+        baiduMap.searchNear(this.communityData.longitude, this.communityData.latitude, key)
+      }
     },
     getLocal () {
       // eslint-disable-next-line no-undef
