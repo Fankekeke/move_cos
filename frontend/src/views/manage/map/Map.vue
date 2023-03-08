@@ -138,7 +138,7 @@
                 </a-row>
                 <a-card v-if="echartsShow" hoverable :bordered="false" style="width: 100%">
                   <a-skeleton active v-if="checkLoading" />
-                  <apexchart v-if="!checkLoading" type="bar" height="180" :options="chartOptions" :series="series"></apexchart>
+                  <apexchart v-if="!checkLoading" type="radar" height="200" :options="chartOptions" :series="series"></apexchart>
                 </a-card>
                 <br/>
                 <a-row style="padding-left: 24px;padding-right: 24px;" v-if="staffList.length !== 0">
@@ -204,43 +204,19 @@ export default {
       checkLoading: false,
       echartsShow: false,
       series: [{
-        name: '',
+        name: '得分',
         data: []
       }],
       chartOptions: {
         chart: {
-          type: 'bar',
-          height: 180
+          height: 380,
+          type: 'radar'
         },
-        plotOptions: {
-          bar: {
-            horizontal: false,
-            columnWidth: '55%'
-          },
-        },
-        dataLabels: {
-          enabled: false
-        },
-        stroke: {
-          show: true,
-          width: 2,
-          colors: ['transparent']
+        title: {
+          text: '评价得分'
         },
         xaxis: {
-          categories: []
-        },
-        yaxis: {
-          show: false
-        },
-        fill: {
-          opacity: 1
-        },
-        tooltip: {
-          y: {
-            formatter: function (val) {
-              return '均价： ' + val + ' 元'
-            }
-          }
+          categories: ['交付得分', '价格得分', '质量得分', '准时得分', '服务得分', '综合得分']
         }
       }
     }
@@ -257,6 +233,11 @@ export default {
     }
   },
   methods: {
+    checkEvaluate (score) {
+      let data = [score.deliverScore, score.priceScore, score.qualityScore, score.scheduleScore, score.serviceScore, score.overScore, 100]
+      this.series[0].data = data
+      this.chartOptions.title.text = '评价得分'
+    },
     home () {
       this.$emit('close')
     },
