@@ -1,6 +1,6 @@
 <template>
   <a-drawer
-    title="新增房屋"
+    title="支付"
     :maskClosable="false"
     width=1350
     placement="right"
@@ -17,7 +17,8 @@
           <a-form-item label='始发地'>
             <a-input-search
               v-decorator="[
-              'startAddress'
+              'startAddress',
+              { rules: [{ required: true, message: '请选择始发地!' }] }
               ]"
               enter-button="选择"
               @search="showChildrenDrawer(1)"
@@ -27,14 +28,16 @@
         <a-col :span="6">
           <a-form-item label='始发经度'>
             <a-input v-decorator="[
-            'startLongitude'
+            'startLongitude',
+            { rules: [{ required: true, message: '请输入始发经度!' }] }
             ]"/>
           </a-form-item>
         </a-col>
         <a-col :span="6">
           <a-form-item label='始发纬度'>
             <a-input v-decorator="[
-            'startLatitude'
+            'startLatitude',
+            { rules: [{ required: true, message: '请输入始发纬度!' }] }
             ]"/>
           </a-form-item>
         </a-col>
@@ -45,7 +48,8 @@
           <a-form-item label='运输地'>
             <a-input-search
               v-decorator="[
-              'endAddress'
+              'endAddress',
+               { rules: [{ required: true, message: '请输入运输地!' }] }
               ]"
               enter-button="选择"
               @search="showChildrenDrawer(2)"
@@ -55,14 +59,16 @@
         <a-col :span="6">
           <a-form-item label='运输经度'>
             <a-input v-decorator="[
-            'endLongitude'
+            'endLongitude',
+            { rules: [{ required: true, message: '请输入运输经度!' }] }
             ]"/>
           </a-form-item>
         </a-col>
         <a-col :span="6">
           <a-form-item label='运输纬度'>
             <a-input v-decorator="[
-            'endLatitude'
+            'endLatitude',
+            { rules: [{ required: true, message: '请输入运输纬度!' }] }
             ]"/>
           </a-form-item>
         </a-col>
@@ -71,7 +77,7 @@
         </a-divider>
         <a-col :span="24">
           <a-form-item label='车辆配置'>
-            <a-radio-group button-style="solid" v-decorator="['vehicleOptions']">
+            <a-radio-group button-style="solid" v-decorator="['vehicleOptions', { rules: [{ required: true, message: '请输入车辆配置!' }] }]">
               <a-radio-button value="1">
                 大型车
               </a-radio-button>
@@ -86,7 +92,7 @@
         </a-col>
         <a-col :span="24">
           <a-form-item label='是否需要搬运工'>
-            <a-radio-group button-style="solid" v-decorator="['staffOptions']">
+            <a-radio-group button-style="solid" v-decorator="['staffOptions', { rules: [{ required: true, message: '请输入是否需要搬运工!' }] }]">
               <a-radio-button value="0">
                 不需要
               </a-radio-button>
@@ -104,7 +110,7 @@
         </a-col>
         <a-col :span="24">
           <a-form-item label='是否有电梯'>
-            <a-radio-group button-style="solid" v-decorator="['hasElevator']">
+            <a-radio-group button-style="solid" v-decorator="['hasElevator', { rules: [{ required: true, message: '请输入是否有电梯!' }] }]">
               <a-radio-button value="0">
                 无
               </a-radio-button>
@@ -288,6 +294,10 @@ export default {
     next () {
       // 获取图片List
       let images = []
+      if (this.fileList.length === 0) {
+        this.$message.warn('请上传图片')
+        return false
+      }
       this.fileList.forEach(image => {
         images.push(image.response)
       })
@@ -295,6 +305,7 @@ export default {
         if (!err) {
           this.loading = true
           values.userId = this.currentUser.userId
+          values.images = images.length > 0 ? images.join(',') : null
           this.$post('/cos/order-info', {
             ...values
           }).then((r) => {

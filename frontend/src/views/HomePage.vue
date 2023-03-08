@@ -16,9 +16,31 @@
             <div class="head-info-time">上次登录时间：{{user.lastLoginTime ? user.lastLoginTime : '第一次访问系统'}}</div>
           </div>
         </a-col>
+        <a-col :span="24" v-if="user.roleId == 75"></a-col>
+        <a-col :span="12" v-if="user.roleId == 75">
+          <a-card hoverable :loading="loading" :bordered="false" title="消息通知" style="height: 550px;overflow: auto">
+            <div style="padding: 0 22px">
+              <a-list item-layout="vertical" :pagination="false" :data-source="bulletinList">
+                <a-list-item slot="renderItem" key="item.title" slot-scope="item, index">
+                  <template slot="actions">
+                  <span key="message" style="font-size: 13px">
+                    <a-icon type="message" style="margin-right: 8px" />
+                    {{ item.createDate }}
+                  </span>
+                  </template>
+                  <a-list-item-meta :description="item.content" style="font-size: 13px">
+                  </a-list-item-meta>
+                  <a slot="actions">
+                    <span @click="cleanMessage(item.id)">已阅</span>
+                  </a>
+                </a-list-item>
+              </a-list>
+            </div>
+          </a-card>
+        </a-col>
         <a-col :span="12">
           <div>
-            <a-row class="more-info">
+            <a-row class="more-info" v-if="user.roleId == 74">
               <a-col :span="4"></a-col>
               <a-col :span="4"></a-col>
               <a-col :span="4">
@@ -39,7 +61,7 @@
       </a-card>
     </a-row>
     <home @setTitle="setTitleData"></home>
-    <a-row :gutter="8" class="count-info" style="margin-top: 15px">
+    <a-row :gutter="8" class="count-info" style="margin-top: 15px" v-show="user.roleId == 74">
       <a-col :span="12" class="visit-count-wrapper">
         <a-card class="visit-count" hoverable>
           <apexchart ref="count" type=bar height=300 :options="chartOptions" :series="series" />
@@ -101,7 +123,8 @@ export default {
       userRole: '',
       userDept: '',
       lastLoginTime: '',
-      welcomeMessage: ''
+      welcomeMessage: '',
+      bulletinList: []
     }
   },
   computed: {
@@ -114,6 +137,16 @@ export default {
     }
   },
   methods: {
+    cleanMessage (id) {
+      this.$get(`/cos/notify-info/setReadStatus/${id}`).then((r) => {
+        this.getNewList()
+      })
+    },
+    getNewList () {
+      this.$get(`/cos/notify-info/detail/${this.user.userId}`).then((r) => {
+        this.bulletinList = r.data.data
+      })
+    },
     welcome () {
       const date = new Date()
       const hour = date.getHours()
@@ -125,6 +158,7 @@ export default {
     }
   },
   mounted () {
+    this.getNewList()
     this.welcomeMessage = this.welcome()
     this.$get(`index/${this.user.username}`).then((r) => {
       let data = r.data.data

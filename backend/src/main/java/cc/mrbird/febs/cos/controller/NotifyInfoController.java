@@ -3,13 +3,17 @@ package cc.mrbird.febs.cos.controller;
 
 import cc.mrbird.febs.common.utils.R;
 import cc.mrbird.febs.cos.entity.NotifyInfo;
+import cc.mrbird.febs.cos.entity.UserInfo;
 import cc.mrbird.febs.cos.service.INotifyInfoService;
+import cc.mrbird.febs.cos.service.IUserInfoService;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -22,6 +26,8 @@ import java.util.List;
 public class NotifyInfoController {
 
     private final INotifyInfoService notifyInfoService;
+
+    private final IUserInfoService userInfoService;
 
     /**
      * 分页获取通知信息
@@ -66,6 +72,25 @@ public class NotifyInfoController {
     public R save(NotifyInfo notifyInfo) {
         notifyInfo.setCreateDate(DateUtil.formatDateTime(new Date()));
         return R.ok(notifyInfoService.save(notifyInfo));
+    }
+
+    /**
+     * 根据用户ID查询消息通知
+     * @param userId 用户ID
+     * @return 结果
+     */
+    @GetMapping("/detail/{userId}")
+    public R selectListByUserId(@PathVariable("userId") Integer userId) {
+        UserInfo user = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, userId));
+        if (user == null) {
+            return R.ok(Collections.emptyList());
+        }
+        return R.ok(notifyInfoService.list(Wrappers.<NotifyInfo>lambdaQuery().eq(NotifyInfo::getUserCode, user.getCode()).eq(NotifyInfo::getDelFlag, 0)));
+    }
+
+    @GetMapping("/setReadStatus/{id}")
+    public R setReadStatus(@PathVariable("id") Integer id) {
+        return R.ok(notifyInfoService.update(Wrappers.<NotifyInfo>lambdaUpdate().set(NotifyInfo::getDelFlag, 1).eq(NotifyInfo::getId, id)));
     }
 
     /**

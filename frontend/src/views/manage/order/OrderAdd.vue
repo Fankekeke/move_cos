@@ -1,6 +1,6 @@
 <template>
   <a-drawer
-    title="新增房屋"
+    title="支付"
     :maskClosable="false"
     width=1350
     placement="right"

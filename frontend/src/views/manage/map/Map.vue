@@ -136,9 +136,9 @@
                 <a-row style="padding-left: 24px;padding-right: 24px;" v-if="evaluateInfo != null">
                   <a-col><span style="font-size: 14px;font-weight: 650;color: #000c17">订单评价</span></a-col>
                 </a-row>
-                <a-card v-if="echartsShow" hoverable :bordered="false" style="width: 100%">
+                <a-card v-if="evaluateInfo != null" hoverable :bordered="false" style="width: 100%">
                   <a-skeleton active v-if="checkLoading" />
-                  <apexchart v-if="!checkLoading" type="radar" height="200" :options="chartOptions" :series="series"></apexchart>
+                  <apexchart v-if="!checkLoading" type="radar" height="300" :options="chartOptions" :series="series"></apexchart>
                 </a-card>
                 <br/>
                 <a-row style="padding-left: 24px;padding-right: 24px;" v-if="staffList.length !== 0">
@@ -213,7 +213,7 @@ export default {
           type: 'radar'
         },
         title: {
-          text: '评价得分'
+          text: ''
         },
         xaxis: {
           categories: ['交付得分', '价格得分', '质量得分', '准时得分', '服务得分', '综合得分']
@@ -227,16 +227,63 @@ export default {
         this.selectOrderDetail(this.orderData.code)
         setTimeout(() => {
           baiduMap.initMap('areas')
+          setTimeout(() => {
+            this.navigation(this.orderData)
+          }, 200)
           this.getLocal()
         }, 200)
       }
     }
   },
   methods: {
+    navigation (data) {
+      baiduMap.clearOverlays()
+      baiduMap.rMap().enableScrollWheelZoom(true)
+      // eslint-disable-next-line no-undef
+      let driving = new BMap.DrivingRoute(baiduMap.rMap(), {renderOptions: {map: baiduMap.rMap(), autoViewport: true}})
+      // eslint-disable-next-line no-undef
+      driving.search(new BMap.Point(data.startLongitude, data.startLatitude), new BMap.Point(data.endLongitude, data.endLatitude))
+      // this.getRoadData()
+    },
+    getRoadData () {
+      let options = {
+        onSearchComplete: results => {
+          // eslint-disable-next-line eqeqeq,no-undef
+          if (driving.getStatus() == BMAP_STATUS_SUCCESS) {
+            // 获取第一条方案
+            let plan = results.getPlan(0)
+            // 获取方案的驾车线路
+            // eslint-disable-next-line no-unused-vars
+            let route = plan.getRoute(0)
+            // 获取每个关键步骤,并输出到页面
+            let s = []
+            for (let j = 0; j < plan.getNumRoutes(); j++) {
+              let route = plan.getRoute(j)
+              for (let i = 0; i < route.getNumSteps(); i++) {
+                let step = route.getStep(i)
+                s.push((i + 1) + '. ' + step.getDescription())
+              }
+            }
+            this.roadData = s
+          }
+        }
+      }
+      // eslint-disable-next-line no-undef
+      let driving = new BMap.DrivingRoute(baiduMap.rMap(), options)
+      // eslint-disable-next-line no-undef
+      let start = new BMap.Point(this.nowPoint.lng, this.nowPoint.lat)
+      let end = null
+      if (this.rentShow) {
+        end = new BMap.Point(this.rentData.longitude, this.rentData.latitude)
+      } else {
+        end = new BMap.Point(this.communityData.longitude, this.communityData.latitude)
+      }
+      // eslint-disable-next-line no-undef
+      driving.search(start, end)
+    },
     checkEvaluate (score) {
       let data = [score.deliverScore, score.priceScore, score.qualityScore, score.scheduleScore, score.serviceScore, score.overScore, 100]
       this.series[0].data = data
-      this.chartOptions.title.text = '评价得分'
     },
     home () {
       this.$emit('close')
@@ -267,11 +314,17 @@ export default {
       }, {enableHighAccuracy: true})
     },
     selectOrderDetail (orderCode) {
+      this.checkLoading = true
+      this.evaluateInfo = null
+      this.staffList = []
       this.$get(`/cos/order-info/detail/${orderCode}`).then((r) => {
         this.userInfo = r.data.user
         this.evaluateInfo = r.data.evaluate
+        if (r.data.evaluate != null) {
+          this.checkEvaluate(r.data.evaluate)
+        }
         this.staffList = r.data.staff
-        console.log(JSON.stringify(this.staffList))
+        this.checkLoading = false
       })
     }
   }
