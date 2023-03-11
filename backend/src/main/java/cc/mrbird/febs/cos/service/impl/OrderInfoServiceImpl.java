@@ -126,7 +126,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
      */
     @Override
     public boolean orderEvaluate(EvaluateInfo evaluateInfo) {
-        // 设置用户编号
+        // 设置用户编号1
         OrderInfo orderInfo = this.getOne(Wrappers.<OrderInfo>lambdaQuery().eq(OrderInfo::getCode, evaluateInfo.getOrderCode()));
         UserInfo userInfo = userInfoMapper.selectById(orderInfo.getUserId());
         if (userInfo != null) {
