@@ -75,7 +75,7 @@ public class NotifyInfoController {
     }
 
     /**
-     * 根据用户ID查询消息通知
+     * 根据用户ID查询消息通知1
      * @param userId 用户ID
      * @return 结果
      */
