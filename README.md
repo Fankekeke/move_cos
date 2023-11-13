@@ -32,6 +32,12 @@ WebStorm OR VScode 编译器 [https://www.jianshu.com/p/d63b5bae9dff]
 安装所需文件 yarn install 
 运行 yarn run dev
 
+#### 后端启动方式
+
+1.首先启动redis，进入redis目录终端。输入redis-server回车
+2.导入sql文件，修改数据库与redis连接配置
+3.idea中启动后端项目
+
 ### 管理员
 公告管理，评价管理，消息通知，订单管理，支付记录，计算规则，员工管理，用户管理
 
