@@ -1,4 +1,4 @@
-### 基于SpringBoot的同城搬家系统
+### 基于SpringBoot + Vue的同城搬家系统
 
 #### 安装环境
 
